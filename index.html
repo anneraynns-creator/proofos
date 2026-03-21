@@ -132,8 +132,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
 </div>
 <div class="key-bar">
   <div class="key-bar-row">
-    <label>OpenAI API key</label>
-    <input type="password" id="apiKey" placeholder="Paste your key here — sk-..." />
+    <label>Anthropic API key</label>
+    <input type="password" id="apiKey" placeholder="Paste your Anthropic key — sk-ant-..." />
     <button class="smb" onclick="saveKey()">Save key</button>
     <button class="smb" onclick="clearKey()" style="color:#E24B4A;border-color:#F09595">Clear</button>
   </div>
@@ -269,19 +269,31 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
               </div>
               <div id="elPanel" style="display:none">
                 <div class="el-box">
-                  <div class="el-box-title">ElevenLabs — your cloned voice</div>
-                  <p>1. Go to <strong>elevenlabs.io</strong> and sign up free<br>2. Click "Add voice" and upload your recordings (15 min+ recommended)<br>3. Copy your Voice ID from voice settings<br>4. Paste your ElevenLabs API key and Voice ID below</p>
+                  <div class="el-box-title">ElevenLabs — API key</div>
+                  <p>Paste your ElevenLabs API key once. Then add as many voices as you need below — each with its own name and Voice ID.</p>
                   <input type="password" id="elKey" placeholder="ElevenLabs API key" />
-                  <input type="text" id="elVoiceId" placeholder="Voice ID" />
-                  <button class="btn btn-sm btn-primary" onclick="saveElKeys()">Save & test</button>
-                  <div id="elStatus" style="font-size:12px;margin-top:6px;color:#534AB7"></div>
+                  <button class="btn btn-sm btn-primary" style="margin-bottom:8px" onclick="saveElKey()">Save API key</button>
+                  <div id="elKeyStatus" style="font-size:12px;margin-bottom:8px;color:#534AB7"></div>
                 </div>
+
                 <div style="margin-top:0.75rem">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <span style="font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px">My voices</span>
+                    <button class="btn btn-sm" onclick="addVoiceSlot()" style="font-size:12px">+ Add voice</button>
+                  </div>
+                  <div id="voiceSlots"></div>
+                </div>
+
+                <div style="margin-top:0.75rem">
+                  <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:6px">Select voice to use</div>
+                  <select id="elVoiceSelect" class="sel" style="width:100%;font-size:13px;padding:8px 10px;margin-bottom:0.75rem" onchange="onVoiceSelectChange()">
+                    <option value="">— choose a voice —</option>
+                  </select>
                   <div class="play-bar">
                     <button class="play-btn" onclick="playElevenLabs()">&#9654;</button>
                     <div class="play-info">
-                      <div class="play-title">Read with my voice</div>
-                      <div class="play-sub" id="elPlaySub">Click to generate audio in your cloned voice</div>
+                      <div class="play-title" id="elPlayTitle">Select a voice above</div>
+                      <div class="play-sub" id="elPlaySub">Click play to generate audio in your chosen voice</div>
                     </div>
                   </div>
                   <div id="elAudioOut"></div>
@@ -437,14 +449,105 @@ function sSess(obj){var k=sk(state.comp,state.path,state.level,state.session);st
 function saveState(){try{localStorage.setItem('proofos_v11',JSON.stringify(state));}catch(e){}}
 function loadState(){try{var s=localStorage.getItem('proofos_v11');if(s)state=JSON.parse(s);}catch(e){}}
 
-function saveKey(){var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your API key first.');return;}if(k.indexOf('sk-')!==0){showKeyStatus('err','Key should start with sk-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
+function saveKey(){var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your Anthropic API key first.');return;}if(k.indexOf('sk-ant-')!==0){showKeyStatus('err','This does not look right — your Anthropic key should start with sk-ant-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
 function clearKey(){document.getElementById('apiKey').value='';try{localStorage.removeItem('pf_ok');}catch(e){}showKeyStatus('','');}
 function showKeyStatus(t,m){var el=document.getElementById('keyStatus');el.className='key-status'+(t?' '+t:'');el.textContent=m;}
 function getKey(){return document.getElementById('apiKey').value.trim()||(function(){try{return localStorage.getItem('pf_ok')||'';}catch(e){return '';}})();}
 function loadSavedKey(){try{var k=localStorage.getItem('pf_ok');if(k){document.getElementById('apiKey').value=k;showKeyStatus('ok','Key loaded.');}}catch(e){}}
-function saveElKeys(){var k=document.getElementById('elKey').value.trim(),v=document.getElementById('elVoiceId').value.trim();if(!k||!v){document.getElementById('elStatus').textContent='Enter both fields.';return;}try{localStorage.setItem('pf_elk',k);localStorage.setItem('pf_elv',v);}catch(e){}document.getElementById('elStatus').textContent='Saved.';}
+// ELEVENLABS MULTI-VOICE SYSTEM
+function saveElKey(){
+  var k=document.getElementById('elKey').value.trim();
+  if(!k){document.getElementById('elKeyStatus').textContent='Please paste your ElevenLabs API key.';return;}
+  try{localStorage.setItem('pf_elk',k);}catch(e){}
+  document.getElementById('elKeyStatus').textContent='API key saved.';
+  document.getElementById('elKeyStatus').style.color='#085041';
+}
 function getElKey(){return document.getElementById('elKey').value.trim()||(function(){try{return localStorage.getItem('pf_elk')||'';}catch(e){return '';}})();}
-function getElVoice(){return document.getElementById('elVoiceId').value.trim()||(function(){try{return localStorage.getItem('pf_elv')||'';}catch(e){return '';}})();}
+
+// voices stored as array: [{name, id}]
+function loadVoices_el(){
+  try{var v=localStorage.getItem('pf_voices');return v?JSON.parse(v):[];}catch(e){return [];}
+}
+function saveVoices_el(voices){try{localStorage.setItem('pf_voices',JSON.stringify(voices));}catch(e){}}
+
+function renderVoiceSlots(){
+  var voices=loadVoices_el();
+  var container=document.getElementById('voiceSlots');
+  container.innerHTML='';
+  if(voices.length===0){
+    container.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0">No voices added yet. Click + Add voice to add your first cloned voice.</div>';
+  }
+  voices.forEach(function(v,i){
+    var div=document.createElement('div');
+    div.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:8px;';
+    div.innerHTML=
+      '<input type="text" value="'+v.name+'" placeholder="Voice name (e.g. Anne AYTE)" style="flex:1;font-size:12px;padding:6px 8px;border-radius:6px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a" onchange="updateVoiceName('+i+',this.value)" />'+
+      '<input type="text" value="'+v.id+'" placeholder="Voice ID" style="flex:1;font-size:12px;padding:6px 8px;border-radius:6px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a" onchange="updateVoiceId('+i+',this.value)" />'+
+      '<button onclick="removeVoice('+i+')" style="padding:5px 8px;border-radius:6px;border:0.5px solid #F09595;background:transparent;color:#E24B4A;cursor:pointer;font-size:11px;white-space:nowrap">Remove</button>';
+    container.appendChild(div);
+  });
+  renderVoiceDropdown();
+}
+
+function renderVoiceDropdown(){
+  var voices=loadVoices_el();
+  var sel=document.getElementById('elVoiceSelect');
+  var current=sel.value;
+  sel.innerHTML='<option value="">— choose a voice —</option>';
+  voices.forEach(function(v,i){
+    var o=document.createElement('option');
+    o.value=i;
+    o.textContent=v.name||'Voice '+(i+1);
+    sel.appendChild(o);
+  });
+  if(current)sel.value=current;
+}
+
+function addVoiceSlot(){
+  var voices=loadVoices_el();
+  voices.push({name:'',id:''});
+  saveVoices_el(voices);
+  renderVoiceSlots();
+}
+function removeVoice(i){
+  var voices=loadVoices_el();
+  voices.splice(i,1);
+  saveVoices_el(voices);
+  renderVoiceSlots();
+}
+function updateVoiceName(i,val){
+  var voices=loadVoices_el();
+  if(voices[i])voices[i].name=val;
+  saveVoices_el(voices);
+  renderVoiceDropdown();
+}
+function updateVoiceId(i,val){
+  var voices=loadVoices_el();
+  if(voices[i])voices[i].id=val;
+  saveVoices_el(voices);
+}
+function onVoiceSelectChange(){
+  var voices=loadVoices_el();
+  var idx=parseInt(document.getElementById('elVoiceSelect').value);
+  var v=voices[idx];
+  if(v){
+    document.getElementById('elPlayTitle').textContent=v.name||'Selected voice';
+    document.getElementById('elAudioOut').innerHTML='';
+    document.getElementById('elPlaySub').textContent='Click play to generate audio in '+( v.name||'this voice');
+  }
+}
+function getElVoice(){
+  var voices=loadVoices_el();
+  var idx=parseInt(document.getElementById('elVoiceSelect').value);
+  if(isNaN(idx)||!voices[idx])return '';
+  return voices[idx].id;
+}
+function getElVoiceName(){
+  var voices=loadVoices_el();
+  var idx=parseInt(document.getElementById('elVoiceSelect').value);
+  if(isNaN(idx)||!voices[idx])return 'voice';
+  return voices[idx].name||'voice';
+}
 
 function buildCompSel(){
   var sel=document.getElementById('compSel');sel.innerHTML='';
@@ -687,7 +790,26 @@ function pausePlay(){synth.pause();speaking=false;document.getElementById('playB
 function stopPlay(){synth.cancel();speaking=false;wordIdx=0;document.getElementById('playBtn').innerHTML='&#9654;';document.getElementById('progressFill').style.width='0%';document.querySelectorAll('.script-reader span').forEach(function(s){s.style.background='';});}
 function seekProgress(e){var pct=e.offsetX/e.currentTarget.offsetWidth;wordIdx=Math.floor(pct*words.length);stopPlay();startPlay();}
 
-async function playElevenLabs(){var key=getElKey(),voice=getElVoice();var d=gSess();var text=d.audioText||d.text;if(!key||!voice){alert('Save your ElevenLabs keys first.');return;}if(!text){alert('No script loaded.');return;}var sub=document.getElementById('elPlaySub'),out=document.getElementById('elAudioOut');sub.textContent='Generating...';out.innerHTML='<div class="generating"><div class="spinner"></div>This may take 10-30 seconds...</div>';try{var res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{method:'POST',headers:{'xi-api-key':key,'Content-Type':'application/json'},body:JSON.stringify({text:text.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.8}})});if(!res.ok){var err=await res.json();out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+(err.detail&&err.detail.message||res.statusText)+'</span>';return;}var blob=await res.blob();var url=URL.createObjectURL(blob);var c=COMPS[state.comp];var pw=currentPathway();var fname=c.code+'_'+pw.num+'_'+state.level+'_S'+String(state.session).padStart(2,'0')+'_myvoice.mp3';out.innerHTML='<audio controls style="width:100%;margin-top:8px" src="'+url+'"></audio><div style="margin-top:8px"><a href="'+url+'" download="'+fname+'" class="btn btn-sm btn-green">Download audio</a></div>';sub.textContent='Done';sSess({audioReady:true});updateSidebar();}catch(e){out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+e.message+'</span>';}}
+async function playElevenLabs(){
+  var key=getElKey();var voice=getElVoice();var d=gSess();var text=d.audioText||d.text;
+  if(!key){alert('Please paste your ElevenLabs API key and click Save API key.');return;}
+  if(!voice){alert('Please select a voice from the dropdown first.');return;}
+  if(!text){alert('No script loaded. Save your script first.');return;}
+  var voiceName=getElVoiceName();
+  var sub=document.getElementById('elPlaySub'),out=document.getElementById('elAudioOut');
+  sub.textContent='Generating audio with '+voiceName+'...';
+  out.innerHTML='<div class="generating"><div class="spinner"></div>This may take 10-30 seconds...</div>';
+  try{
+    var res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{method:'POST',headers:{'xi-api-key':key,'Content-Type':'application/json'},body:JSON.stringify({text:text.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.8}})});
+    if(!res.ok){var err=await res.json();out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+(err.detail&&err.detail.message||res.statusText)+'</span>';return;}
+    var blob=await res.blob();var url=URL.createObjectURL(blob);
+    var c=COMPS[state.comp];var pw=currentPathway();
+    var fname=c.code+'_'+pw.num+'_'+state.level+'_S'+String(state.session).padStart(2,'0')+'_'+voiceName.replace(/\s+/g,'_')+'.mp3';
+    out.innerHTML='<div style="font-size:12px;color:#085041;margin-bottom:6px">Playing: <strong>'+voiceName+'</strong></div><audio controls style="width:100%;margin-bottom:8px" src="'+url+'"></audio><a href="'+url+'" download="'+fname+'" class="btn btn-sm btn-green">Download audio</a>';
+    sub.textContent='Done — '+voiceName;
+    sSess({audioReady:true});updateSidebar();
+  }catch(e){out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+e.message+'</span>';}
+}
 
 async function generateAll(){var text=document.getElementById('sessionText').value.trim();if(!text){alert('Please upload or paste session text first.');return;}var key=getKey();if(!key){alert('Please paste your OpenAI API key and click Save key.');return;}sSess({text:text});updateScriptBoxHeader(text);refreshAudioTab();var c=COMPS[state.comp];var pw=currentPathway();var statusEl=document.getElementById('genStatus');statusEl.innerHTML='<div class="generating"><div class="spinner"></div>Generating NIA coaching script and social drafts...</div>';var prompt='You are building content for NIA, an AI coach on the Afrique Consult AYTE platform.\n\nCompetency: '+c.code+' - '+c.name+'\nPhase: '+c.phase+'\nPassport: '+c.passport+'\nYouth voice: '+c.voice+'\nModule / Pathway: '+pw.num+' '+pw.name+'\nLevel: '+LEVEL_LABELS[state.level]+' ('+LEVELS[state.level]+' sessions)\nSession: '+state.session+'\n\nSESSION CONTENT:\n'+text+'\n\nNIA speaks like a trusted older sibling - warm, direct, African cultural references, never lectures.\n\n=== REFLECTION ===\n3-4 questions NIA asks after the student completes the session.\n\n=== EXERCISE ===\nNIA walks the student through the practical task step by step.\n\n=== SPRINT ===\nDay 3 nudge and Day 7 celebration. 3-4 sentences each.\n\n=== INCOME ===\nNIA connects this session to a real income opportunity. 3-4 sentences.\n\n=== BUDDY ===\nNIA responds when a student feels stuck. 4-5 sentences.\n\n=== SOCIAL DRAFTS ===\nREEL HOOK, CAROUSEL OUTLINE, LINKEDIN ANGLE, WHATSAPP BROADCAST.\n\nOutput ONLY the labelled blocks. No preamble.';try{var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});var data=await res.json();if(data.error){statusEl.innerHTML='<div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;font-size:13px;color:#791F1F">API error: '+data.error.message+'</div>';return;}var raw=data.content&&data.content[0]&&data.content[0].text||'';var sections={};var keys=['REFLECTION','EXERCISE','SPRINT','INCOME','BUDDY'];keys.forEach(function(k,i){var next=keys[i+1];var m=raw.match(next?new RegExp('=== '+k+' ===[\\s\\S]*?(?==== '+next+' ===)','i'):new RegExp('=== '+k+' ===[\\s\\S]*?(?==== SOCIAL|$)','i'));sections[k]=m?m[0].replace(new RegExp('=== '+k+' ===','i'),'').trim():'';});var socM=raw.match(/=== SOCIAL DRAFTS ===([\s\S]*?)$/i);sSess({nia:JSON.stringify(sections),social:socM?socM[1].trim():''});renderNia();renderSocial();statusEl.innerHTML='<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:10px 14px;font-size:13px;color:#085041">Generated - check NIA and Social tabs.</div>';}catch(e){statusEl.innerHTML='<div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;font-size:13px;color:#791F1F">Error: '+e.message+'</div>';}}
 
@@ -702,7 +824,7 @@ function exportSession(){var d=gSess();var c=COMPS[state.comp];var pw=currentPat
 // INIT
 loadState();loadSavedKey();
 try{var ek=localStorage.getItem('pf_elk');if(ek)document.getElementById('elKey').value=ek;}catch(e){}
-try{var ev=localStorage.getItem('pf_elv');if(ev)document.getElementById('elVoiceId').value=ev;}catch(e){}
+renderVoiceSlots();
 buildCompSel();buildPathSel();
 var lvlCls={micro:'lm',mini:'ln',entry:'le'};
 document.getElementById('lvlMicro').className='level-pill';
