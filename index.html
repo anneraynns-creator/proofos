@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProofOS · AYTE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.app{max-width:1040px;margin:0 auto;padding:1.5rem}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.logo{font-size:20px;font-weight:600;letter-spacing:-0.3px}.logo span{color:#7F77DD}
+.badge{font-size:11px;background:#f0f0ee;border:0.5px solid #ddd;padding:4px 10px;border-radius:20px;color:#666}
+.key-bar{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:0.75rem 1rem;margin-bottom:1rem}
+.key-bar-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.key-bar label{font-size:12px;color:#666;font-weight:500;white-space:nowrap}
+.key-bar input[type=password]{flex:1;min-width:200px;font-size:13px;padding:7px 10px;border-radius:8px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a}
+.key-status{margin-top:8px;font-size:12px;padding:6px 10px;border-radius:8px;display:none}
+.key-status.ok{display:block;background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5}
+.key-status.err{display:block;background:#FCEBEB;color:#791F1F;border:0.5px solid #F09595}
+.smb{font-size:12px;padding:7px 14px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#1a1a1a;cursor:pointer;white-space:nowrap}
+.smb:hover{background:#f0f0ee}
+.nav-block{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.nav-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.nav-group{display:flex;flex-direction:column;gap:4px}
+.nav-group label{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px}
+.nav-group select{font-size:13px;padding:8px 10px;border-radius:8px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a;width:100%}
+.level-row{border-top:0.5px solid #eee;padding-top:10px}
+.level-row label{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px}
+.level-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.level-pill{padding:10px 8px;border-radius:8px;border:0.5px solid #ccc;font-size:12px;cursor:pointer;background:#f8f8f6;color:#666;text-align:center;line-height:1.4}
+.level-pill .pill-name{font-size:13px;font-weight:600;display:block;margin-bottom:2px}
+.level-pill .pill-sub{font-size:11px;display:block}
+.level-pill.lm{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.level-pill.ln{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.level-pill.le{background:#FAEEDA;color:#633806;border-color:#EF9F27}
+.crumb{margin-top:10px;padding-top:10px;border-top:0.5px solid #eee;font-size:12px;color:#666;line-height:1.6}
+.crumb strong{color:#1a1a1a;font-weight:600}
+.crumb-sep{color:#ccc;margin:0 4px}
+.cols{display:grid;grid-template-columns:210px 1fr;gap:1rem}
+.sidebar{display:flex;flex-direction:column;gap:0.75rem}
+.card{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:1rem}
+.card-title{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem}
+.session-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.sg-dot{aspect-ratio:1;border-radius:4px;background:#e8e8e6;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;border:1.5px solid transparent}
+.sg-dot:hover{border-color:#ccc}
+.sg-dot.sel-sess{border:2px solid #7F77DD}
+.sg-dot.haudio{background:#FAC775;color:#633806}
+.sg-dot.hnia{background:#AFA9EC;color:#26215C}
+.sg-dot.hsocial{background:#5DCAA5;color:#04342C}
+.prog-section{margin-top:0.75rem;padding-top:0.75rem;border-top:0.5px solid #eee}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:3px}
+.prog-bar{height:4px;background:#eee;border-radius:2px;margin-bottom:8px}
+.prog-fill{height:100%;border-radius:2px}
+.tabs{display:flex;gap:4px;border-bottom:0.5px solid #eee;flex-wrap:wrap}
+.tab{font-size:13px;padding:8px 12px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none}
+.tab.active{color:#1a1a1a;border-bottom-color:#7F77DD;font-weight:600}
+.tab-panel{display:none;padding-top:1rem}
+.tab-panel.active{display:block}
+.section-title{font-size:13px;font-weight:600;margin-bottom:0.75rem}
+.upload-area{background:#f8f8f6;border:0.5px solid #ccc;border-radius:12px;padding:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.upload-area-info{flex:1;min-width:140px}
+.upload-area-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.upload-area-sub{font-size:12px;color:#666}
+.upload-btn{padding:9px 20px;border-radius:8px;background:#7F77DD;color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.upload-btn:hover{background:#534AB7}
+.upload-banner{display:none;border-radius:8px;padding:10px 14px;margin-bottom:0.75rem;font-size:13px;align-items:center;gap:10px}
+.upload-banner.loading{display:flex;background:#f8f8f6;border:0.5px solid #ddd}
+.upload-banner.ok{display:flex;background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041}
+.upload-banner.err{display:flex;background:#FCEBEB;border:0.5px solid #F09595;color:#791F1F}
+.upload-banner-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:600}
+.upload-banner.ok .upload-banner-icon{background:#1D9E75;color:#fff}
+.upload-banner.err .upload-banner-icon{background:#E24B4A;color:#fff}
+.script-box{border:0.5px solid #ccc;border-radius:12px;overflow:hidden;margin-bottom:0.75rem}
+.script-box-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#f8f8f6;border-bottom:0.5px solid #eee}
+.sbh-title{font-size:12px;font-weight:600;color:#666}
+.sbh-meta{font-size:11px;color:#999}
+.script-box-header.loaded{background:#E1F5EE;border-bottom-color:#9FE1CB}
+.script-box-header.loaded .sbh-title{color:#085041}
+.script-box-header.loaded .sbh-meta{color:#1D9E75}
+.script-box textarea{width:100%;font-size:13px;padding:12px 14px;border:none;background:#fff;color:#1a1a1a;resize:vertical;line-height:1.7;font-family:inherit;min-height:220px;outline:none}
+.btn{padding:7px 14px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#1a1a1a;cursor:pointer;font-size:13px;font-family:inherit}
+.btn:hover{background:#f0f0ee}
+.btn-primary{background:#7F77DD;color:#fff;border-color:#7F77DD}.btn-primary:hover{background:#534AB7}
+.btn-green{background:#1D9E75;color:#fff;border-color:#1D9E75}.btn-green:hover{background:#0F6E56}
+.btn-sm{padding:5px 10px;font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.audio-card{border:0.5px solid #ddd;border-radius:12px;overflow:hidden;margin-bottom:1rem}
+.audio-header{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:#f8f8f6;border-bottom:0.5px solid #eee}
+.mode-btn{font-size:12px;padding:5px 14px;border-radius:20px;border:0.5px solid #ccc;cursor:pointer;background:transparent;color:#666}
+.mode-btn.active{background:#7F77DD;color:#fff;border-color:#7F77DD}
+.audio-body{padding:1rem}
+.tts-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem}
+.tts-row label{font-size:12px;color:#666}
+.sel{font-size:12px;padding:6px 8px;border-radius:8px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a}
+.play-bar{display:flex;align-items:center;gap:10px;padding:0.75rem 1rem;background:#f8f8f6;border-radius:8px;margin-bottom:0.75rem}
+.play-btn{width:40px;height:40px;border-radius:50%;background:#7F77DD;border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.play-btn:hover{background:#534AB7}
+.play-info{flex:1}.play-title{font-size:13px;font-weight:600}.play-sub{font-size:11px;color:#666}
+.pbar{width:100%;height:5px;background:#e0e0e0;border-radius:3px;margin-top:8px;cursor:pointer}
+.pfill{height:100%;background:#7F77DD;border-radius:3px;width:0%}
+.script-reader{font-size:13px;line-height:2.2;background:#f8f8f6;border-radius:8px;padding:0.75rem;max-height:220px;overflow-y:auto;border:0.5px solid #eee}
+.no-script-notice{background:#f8f8f6;border:0.5px solid #ddd;border-radius:8px;padding:1.25rem;font-size:13px;color:#666;margin-bottom:0.75rem;line-height:1.7}
+.no-script-notice strong{color:#1a1a1a}
+.el-box{background:#EEEDFE;border-radius:8px;padding:0.75rem 1rem;border:0.5px solid #AFA9EC}
+.el-box-title{font-size:12px;font-weight:600;color:#3C3489;margin-bottom:6px}
+.el-box p{font-size:12px;color:#534AB7;line-height:1.6;margin-bottom:8px}
+.el-box input{width:100%;font-size:12px;padding:6px 10px;border-radius:8px;border:0.5px solid #AFA9EC;background:#fff;color:#26215C;margin-bottom:6px}
+.nia-moment{background:#f8f8f6;border-radius:12px;margin-bottom:10px;overflow:hidden;border:0.5px solid #eee}
+.nia-moment-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid #eee}
+.nia-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.nia-moment-title{font-size:12px;font-weight:600}
+.nia-moment-sub{font-size:11px;color:#999}
+.nia-moment-body{padding:12px 14px;font-size:13px;line-height:1.8;white-space:pre-wrap}
+.social-block{background:#f8f8f6;border-radius:8px;padding:0.75rem 1rem;margin-bottom:8px;border-left:3px solid #5DCAA5;border-top:0.5px solid #eee;border-right:0.5px solid #eee;border-bottom:0.5px solid #eee}
+.social-block-title{font-size:11px;font-weight:600;color:#0F6E56;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
+.social-block-text{font-size:13px;line-height:1.6;white-space:pre-wrap}
+.generating{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;padding:0.75rem 0}
+.spinner{width:14px;height:14px;border:2px solid #ddd;border-top-color:#7F77DD;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:2rem;color:#999;font-size:13px}
+.copy-btn{float:right;font-size:11px;padding:3px 8px;border-radius:8px;border:0.5px solid #ccc;background:transparent;cursor:pointer;color:#666}
+.nia-intro{background:#EEEDFE;border-radius:8px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#534AB7;line-height:1.6;border:0.5px solid #AFA9EC}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header">
+  <div class="logo">Proof<span>OS</span> <span style="font-size:13px;color:#999;font-weight:400">· AYTE</span></div>
+  <div class="badge">14 Competencies · Module Pathways · 3 Levels</div>
+</div>
+<div class="key-bar">
+  <div class="key-bar-row">
+    <label>OpenAI API key</label>
+    <input type="password" id="apiKey" placeholder="Paste your key here — sk-..." />
+    <button class="smb" onclick="saveKey()">Save key</button>
+    <button class="smb" onclick="clearKey()" style="color:#E24B4A;border-color:#F09595">Clear</button>
+  </div>
+  <div class="key-status" id="keyStatus"></div>
+</div>
+<div class="nav-block">
+  <div class="nav-row">
+    <div class="nav-group">
+      <label>Competency</label>
+      <select id="compSel" onchange="onCompChange()"></select>
+    </div>
+    <div class="nav-group">
+      <label>Pathway (module)</label>
+      <select id="pathSel" onchange="onPathChange()"></select>
+    </div>
+  </div>
+  <div class="level-row">
+    <label>Level</label>
+    <div class="level-pills">
+      <button class="level-pill lm" id="lvlMicro" onclick="setLevel('micro',this)">
+        <span class="pill-name">Micro</span>
+        <span class="pill-sub">4 sessions · 1 hour</span>
+      </button>
+      <button class="level-pill" id="lvlMini" onclick="setLevel('mini',this)">
+        <span class="pill-name">Mini</span>
+        <span class="pill-sub">8 sessions · 2 hours</span>
+      </button>
+      <button class="level-pill" id="lvlEntry" onclick="setLevel('entry',this)">
+        <span class="pill-name">Entry</span>
+        <span class="pill-sub">20 sessions · 5 hours</span>
+      </button>
+    </div>
+  </div>
+  <div class="crumb" id="navCrumb"></div>
+</div>
+<div class="cols">
+  <div class="sidebar">
+    <div class="card">
+      <div class="card-title">Sessions — <span id="sessCountLabel">4</span></div>
+      <div class="session-grid" id="sessionGrid"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <span style="font-size:11px;color:#999;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#FAC775;display:inline-block"></span>Audio</span>
+        <span style="font-size:11px;color:#999;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#AFA9EC;display:inline-block"></span>NIA</span>
+        <span style="font-size:11px;color:#999;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#5DCAA5;display:inline-block"></span>Social</span>
+      </div>
+      <div class="prog-section">
+        <div class="prog-row"><span>Audio</span><span id="pAudio">0 / 4</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="pAudioFill" style="background:#FAC775;width:0%"></div></div>
+        <div class="prog-row"><span>NIA</span><span id="pNia">0 / 4</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="pNiaFill" style="background:#AFA9EC;width:0%"></div></div>
+        <div class="prog-row"><span>Social</span><span id="pSocial">0 / 4</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="pSocialFill" style="background:#5DCAA5;width:0%"></div></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+      <div style="background:#f8f8f6;border-radius:8px;padding:0.6rem;text-align:center"><div style="font-size:10px;color:#999;margin-bottom:3px">Audio</div><div style="font-size:18px;font-weight:600;color:#EF9F27" id="cAudio">0</div></div>
+      <div style="background:#f8f8f6;border-radius:8px;padding:0.6rem;text-align:center"><div style="font-size:10px;color:#999;margin-bottom:3px">NIA</div><div style="font-size:18px;font-weight:600;color:#7F77DD" id="cNia">0</div></div>
+      <div style="background:#f8f8f6;border-radius:8px;padding:0.6rem;text-align:center"><div style="font-size:10px;color:#999;margin-bottom:3px">Social</div><div style="font-size:18px;font-weight:600;color:#1D9E75" id="cSocial">0</div></div>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('session')">Session text</button>
+        <button class="tab" onclick="switchTab('audio')">Audio</button>
+        <button class="tab" onclick="switchTab('nia')">NIA coaching script</button>
+        <button class="tab" onclick="switchTab('social')">Social drafts</button>
+        <button class="tab" onclick="switchTab('export')">Export</button>
+      </div>
+      <div class="tab-panel active" id="panel-session">
+        <div class="upload-area">
+          <div class="upload-area-info">
+            <div class="upload-area-title">Upload session script</div>
+            <div class="upload-area-sub" id="uploadAreaSub">Choose your .docx or .txt file</div>
+          </div>
+          <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose file</button>
+          <input type="file" id="fileInput" accept=".txt,.docx,.doc" style="display:none" onchange="onFileSelect(event)" />
+        </div>
+        <div class="upload-banner" id="uploadBanner">
+          <div class="upload-banner-icon" id="uploadBannerIcon"></div>
+          <div id="uploadBannerText"></div>
+        </div>
+        <div class="script-box">
+          <div class="script-box-header" id="scriptBoxHeader">
+            <span class="sbh-title" id="scriptBoxTitle">Session script</span>
+            <span class="sbh-meta" id="scriptBoxMeta">Empty — upload or paste below</span>
+          </div>
+          <textarea id="sessionText" placeholder="Your script will appear here after uploading — or paste directly." oninput="onTextInput()"></textarea>
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" onclick="saveAndSync()">Save + send to Audio</button>
+          <button class="btn" onclick="generateAll()">Generate NIA + social</button>
+          <button class="btn btn-sm" style="color:#E24B4A" onclick="clearText()">Clear</button>
+        </div>
+        <div id="cleanNotice" style="display:none;margin-top:10px;background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:10px 14px;font-size:12px;color:#633806;line-height:1.6">
+          <strong>Section headings detected.</strong> The audio engine will read these aloud as words. Click <strong>Clean for audio</strong> to remove them before playing — your original script stays untouched in the box above.
+          <div style="margin-top:8px"><button class="btn btn-sm" style="background:#EF9F27;color:#fff;border-color:#EF9F27" onclick="cleanAndSync()">Clean for audio</button> <span id="cleanCount" style="font-size:11px;margin-left:6px"></span></div>
+        </div>
+        <div id="genStatus" style="margin-top:10px"></div>
+      </div>
+      <div class="tab-panel" id="panel-audio">
+        <div class="section-title">Audio — <span id="audioLabel">select a session</span></div>
+        <div id="noScriptNotice" class="no-script-notice">
+          <strong>No script loaded yet.</strong> Go to <strong>Session text</strong>, upload or paste your script, then click <strong>Save + send to Audio</strong>.
+        </div>
+        <div id="audioControls" style="display:none">
+          <div class="audio-card">
+            <div class="audio-header">
+              <span style="font-size:13px;font-weight:600">Voice mode</span>
+              <div style="display:flex;gap:6px">
+                <button class="mode-btn active" id="modeSystem" onclick="setMode('system')">System voice</button>
+                <button class="mode-btn" id="modeEl" onclick="setMode('elevenlabs')">My voice (ElevenLabs)</button>
+              </div>
+            </div>
+            <div class="audio-body">
+              <div id="systemPanel">
+                <div class="tts-row">
+                  <label>Voice</label><select id="voiceSelect" class="sel"></select>
+                  <label>Speed</label><input type="range" id="rateSlider" min="0.6" max="1.4" step="0.1" value="0.9" oninput="document.getElementById('rateVal').textContent=parseFloat(this.value).toFixed(1)+'x'" /><span id="rateVal" style="font-size:12px;min-width:28px">0.9x</span>
+                  <label>Pitch</label><input type="range" id="pitchSlider" min="0.5" max="1.5" step="0.1" value="1.0" oninput="document.getElementById('pitchVal').textContent=parseFloat(this.value).toFixed(1)" /><span id="pitchVal" style="font-size:12px;min-width:24px">1.0</span>
+                </div>
+                <div class="play-bar">
+                  <button class="play-btn" id="playBtn" onclick="togglePlay()">&#9654;</button>
+                  <div class="play-info">
+                    <div class="play-title" id="playTitle">Ready to read</div>
+                    <div class="play-sub" id="playSub">Script loaded — click play</div>
+                    <div class="pbar" onclick="seekProgress(event)"><div class="pfill" id="progressFill"></div></div>
+                  </div>
+                  <button class="btn btn-sm" onclick="stopPlay()">Stop</button>
+                </div>
+                <div style="font-size:12px;color:#666;margin-bottom:6px">Script — each word highlights as it reads</div>
+                <div class="script-reader" id="scriptReader"></div>
+              </div>
+              <div id="elPanel" style="display:none">
+                <div class="el-box">
+                  <div class="el-box-title">ElevenLabs — your cloned voice</div>
+                  <p>1. Go to <strong>elevenlabs.io</strong> and sign up free<br>2. Click "Add voice" and upload your recordings (15 min+ recommended)<br>3. Copy your Voice ID from voice settings<br>4. Paste your ElevenLabs API key and Voice ID below</p>
+                  <input type="password" id="elKey" placeholder="ElevenLabs API key" />
+                  <input type="text" id="elVoiceId" placeholder="Voice ID" />
+                  <button class="btn btn-sm btn-primary" onclick="saveElKeys()">Save & test</button>
+                  <div id="elStatus" style="font-size:12px;margin-top:6px;color:#534AB7"></div>
+                </div>
+                <div style="margin-top:0.75rem">
+                  <div class="play-bar">
+                    <button class="play-btn" onclick="playElevenLabs()">&#9654;</button>
+                    <div class="play-info">
+                      <div class="play-title">Read with my voice</div>
+                      <div class="play-sub" id="elPlaySub">Click to generate audio in your cloned voice</div>
+                    </div>
+                  </div>
+                  <div id="elAudioOut"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-panel" id="panel-nia">
+        <div class="section-title">NIA coaching script — <span id="niaLabel">select a session</span></div>
+        <div class="nia-intro">These are the scripts NIA uses to coach students through this session. Copy and paste directly into your learning platform.</div>
+        <div id="niaContent"><div class="empty-state">Generate the NIA coaching script from the Session text tab first.</div></div>
+      </div>
+      <div class="tab-panel" id="panel-social">
+        <div class="section-title">Social media drafts — <span id="socialLabel">select a session</span></div>
+        <div id="socialContent"><div class="empty-state">Generate social drafts from the Session text tab first.</div></div>
+      </div>
+      <div class="tab-panel" id="panel-export">
+        <div class="section-title">Export outputs</div>
+        <p style="font-size:13px;color:#666;margin-bottom:1rem">Download all generated content for the current pathway level.</p>
+        <div id="exportSummary" style="font-size:13px;color:#666;margin-bottom:1rem;line-height:1.7"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="exportAll()">Download full level</button>
+          <button class="btn" onclick="exportSession()">Download this session only</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+// ALL 14 COMPETENCIES WITH THEIR ACTUAL MODULE PATHWAYS
+var COMPS = [
+  {code:'C5', name:'Emotional Regulation & Resilience', phase:'RESET', passport:'Self-Stabiliser',
+   voice:'I know my triggers, I have tools, and I bounce back.',
+   pathways:[
+    {num:'M15',name:'Unshakeable Resilience'},{num:'M17',name:'Mental Fitness'},{num:'M27',name:'Fearless Becoming'},
+    {num:'M32',name:'Break the Silence (Men)'},{num:'M36',name:'Mental Fitness for Men'},{num:'M39',name:'Emotional Mastery'},
+    {num:'M42',name:'Resilience Reset'},{num:'M44',name:'Grit & Grace Studio'},{num:'M46',name:'Recovery Lab'},
+    {num:'M48',name:'Emotional Regulation'},{num:'M105',name:'Emotion First'}
+  ]},
+  {code:'C6', name:'Identity & Self-Direction', phase:'RESET', passport:'Self-Stabiliser',
+   voice:'I know who I am, what I stand for, and I act from that.',
+   pathways:[
+    {num:'M11',name:'Life by Design'},{num:'M12',name:'Soul Force'},{num:'M21',name:'Identity Scripts'},
+    {num:'M22',name:'Dream Blueprint'},{num:'M54',name:'Lead from Within'},{num:'M76',name:'Mindset Alchemy'},
+    {num:'M78',name:'Clarity Lab'},{num:'M79',name:'Action Manifesto'},{num:'M82',name:'Your Life is the Brand'},
+    {num:'M83',name:'Purpose Finding'},{num:'M84',name:'Worthiness Reset'}
+  ]},
+  {code:'C3', name:'Financial Self-Management', phase:'RESET', passport:'Self-Stabiliser',
+   voice:'I know where my money goes and I make decisions on purpose.',
+   pathways:[
+    {num:'M5',name:'Wealth Mindset Starter'},{num:'M90',name:'Hustle Budgeting'},{num:'M91',name:'Youth & Credit'},
+    {num:'M92',name:'Simple Investing'},{num:'M93',name:'Budget Like a Boss'},{num:'M94',name:'Value for Money'},
+    {num:'M101',name:'Money Made Simple'},{num:'M33',name:'Money + Masculinity/Femininity Reset'}
+  ]},
+  {code:'C4', name:'Digital Safety, Reputation & AI Ethics', phase:'RESET', passport:'Self-Stabiliser',
+   voice:'I know my digital footprint and I use AI with integrity.',
+   pathways:[
+    {num:'M7',name:'Cyber Defenders'},{num:'M18',name:'Cyber-Citizenship'},{num:'M23',name:'Safe Socials'},
+    {num:'M51',name:'Digital Hygiene'},{num:'M89',name:'Digital Boundaries'},{num:'M132',name:'AI Ethics & Society Studio'},
+    {num:'M144',name:'Workplace AI & Digital Responsibility'},{num:'M150',name:'Digital Ethics'}
+  ]},
+  {code:'C12', name:'Physical Wellbeing & Performance Discipline', phase:'RESET', passport:'Self-Stabiliser',
+   voice:'I manage my energy deliberately and show up consistently.',
+   pathways:[
+    {num:'M37',name:'Mind-Body Harmony'},{num:'M38',name:'High-Performance Living'},{num:'M43',name:'Tech-Mindfulness'},
+    {num:'M47',name:'Rest Rhythm'},{num:'M50',name:'Wellness Starter'},{num:'M41',name:'Digital Soul Detox'},
+    {num:'M40',name:'Inner Peace Lab'},{num:'M53',name:'Inner Peace Lab (Men)'}
+  ]},
+  {code:'C13', name:'Relationship Intelligence & Intergenerational Navigation', phase:'RESET', passport:'Self-Stabiliser',
+   voice:'I navigate family expectations and personal direction without losing either.',
+   pathways:[
+    {num:'M19',name:'Culture x Code'},{num:'M26',name:'Relationship Intelligence'},{num:'M33',name:'Money + Masculinity/Femininity Reset'},
+    {num:'M100',name:'Safe Circles & Boundaries'},{num:'M105',name:'Emotion First'},{num:'M108',name:'Family Flow Series'},
+    {num:'M106',name:'Safe Choices (SRH & Consent)'}
+  ]},
+  {code:'C7', name:'Communication & Relationship Navigation', phase:'RESET / REBUILD', passport:'Self-Stabiliser to Skill Builder',
+   voice:'I can say what I need, hear what others need, and repair when things break.',
+   pathways:[
+    {num:'M26',name:'Relationship Intelligence'},{num:'M49',name:'Safe Expression'},{num:'M97',name:'Professional Edge'},
+    {num:'M100',name:'Safe Circles & Boundaries'},{num:'M104',name:'Street Smart Lab'},{num:'M107',name:'Self-Coaching Toolbox'},
+    {num:'M141',name:'Modern Team Communication'},{num:'M142',name:'Feedback & Coachability Loop'},{num:'M75',name:'Dialogues That Work'}
+  ]},
+  {code:'C1', name:'Priority & Planning Literacy', phase:'REBUILD', passport:'Skill Builder',
+   voice:'I know what matters and I can show it.',
+   pathways:[
+    {num:'M96',name:'Productivity Tools Lab'},{num:'M143',name:'Reliability & Delivery Systems'},{num:'M38',name:'High-Performance Living'},
+    {num:'M86',name:'Time Architect'},{num:'M87',name:'Goal Setting Lab'},{num:'M102',name:'Daily Flow Mastery'}
+  ]},
+  {code:'C2', name:'Execution Reliability', phase:'REBUILD / EARN', passport:'Skill Builder to Income Activator',
+   voice:'I do what I say I will do and I can prove it.',
+   pathways:[
+    {num:'M143',name:'Reliability & Delivery Systems'},{num:'M88',name:'Habit Craft'},{num:'M85',name:'Reset Planner'},
+    {num:'M96',name:'Productivity Tools Lab'},{num:'M38',name:'High-Performance Living'},{num:'M102',name:'Daily Flow Mastery'},
+    {num:'M35',name:'Habit Detox'}
+  ]},
+  {code:'C9', name:'Digital Fluency & AI Literacy', phase:'REBUILD / EARN', passport:'Skill Builder',
+   voice:'I use digital tools purposefully and AI responsibly and I can show the output.',
+   pathways:[
+    {num:'M2',name:'Tech for Change'},{num:'M81',name:'Meta-Learning & AI Co-Pilot'},{num:'M128',name:'AI Futures Series'},
+    {num:'M132',name:'AI Ethics & Society Studio'},{num:'M144',name:'Workplace AI'},{num:'M147',name:'AI Workforce Series'}
+  ]},
+  {code:'C11', name:'Analytical & Systems Thinking (African Context)', phase:'REBUILD', passport:'Skill Builder',
+   voice:'I see the whole system, find the root cause, and act on it.',
+   pathways:[
+    {num:'M20',name:'Ancestor Algorithms'},{num:'M56',name:'Strategic Thinking Lab'},{num:'M63',name:'Social Innovation Sprint'},
+    {num:'M72',name:'Spatial Justice'},{num:'M103',name:'Decision Lab'},{num:'M153',name:'Problem Engineer'},
+    {num:'M161',name:'Industrial Thinker'},{num:'M104',name:'Street Smart Lab'}
+  ]},
+  {code:'C14', name:'Civic Identity & Community Agency', phase:'REBUILD / EARN', passport:'Skill Builder to Income Activator',
+   voice:'I know how to advocate safely and build coalitions that create real change.',
+   pathways:[
+    {num:'M14',name:'Citizen X'},{num:'M57',name:'Servant Leadership'},{num:'M64',name:'Civic Power Toolkit'},
+    {num:'M65',name:'Grassroots Movement Lab'},{num:'M66',name:'Partnership & Advocacy'},{num:'M70',name:'Voice in the Village'},
+    {num:'M72',name:'Spatial Justice'},{num:'M73',name:'Policy Power'},{num:'M74',name:'Governance Clinics'},
+    {num:'M75',name:'Dialogues That Work'}
+  ]},
+  {code:'C8', name:'Opportunity Activation', phase:'EARN', passport:'Income Activator',
+   voice:'I find the door, knock on it, and follow through until it opens.',
+   pathways:[
+    {num:'M1',name:'My First Job Toolkit'},{num:'M8',name:'FinTech Builders'},{num:'M29',name:'Business Scaling'},
+    {num:'M31',name:'Global Mobility & Scholarships'},{num:'M67',name:'Impact Design Challenge'},
+    {num:'M95',name:'Career Acceleration Hub'},{num:'M98',name:'Side Hustle Mastery'},{num:'M99',name:'Reinvention Roadmap'}
+  ]},
+  {code:'C10', name:'Entrepreneurial Thinking & Market Activation', phase:'EARN', passport:'Income Activator',
+   voice:'I identify a need, design an offer, test it, and improve it.',
+   pathways:[
+    {num:'M3',name:'From Hustle to Impact'},{num:'M6',name:'Entrepreneurship Foundations'},{num:'M16',name:'Startup Development'},
+    {num:'M29',name:'Business Scaling'},{num:'M63',name:'Social Innovation Sprint'},{num:'M65',name:'Grassroots Movement Lab'},
+    {num:'M67',name:'Impact Design Challenge'},{num:'M68',name:'Green & Circular Ventures'},
+    {num:'M98',name:'Side Hustle Mastery'},{num:'M128',name:'AI Kidpreneurs'}
+  ]}
+];
+
+var LEVELS={micro:4,mini:8,entry:20};
+var LEVEL_LABELS={micro:'Micro',mini:'Mini',entry:'Entry'};
+var NIA_MOMENTS=[
+  {key:'REFLECTION',label:'Post-session reflection',sub:'Questions NIA asks after the student completes the session',icon:'💬',color:'#AFA9EC',tc:'#26215C'},
+  {key:'EXERCISE',label:'Exercise guidance',sub:'How NIA walks the student through the session task',icon:'✏️',color:'#9FE1CB',tc:'#04342C'},
+  {key:'SPRINT',label:'7-day sprint check-in',sub:'What NIA says at Day 3 and Day 7',icon:'📅',color:'#FAC775',tc:'#412402'},
+  {key:'INCOME',label:'Income-bridge coaching',sub:'How NIA connects this session to real income opportunity',icon:'💡',color:'#85B7EB',tc:'#042C53'},
+  {key:'BUDDY',label:'Buddy support',sub:'What NIA says when a student reaches out or feels stuck',icon:'🤝',color:'#F4C0D1',tc:'#4B1528'}
+];
+
+// pathway index within the competency
+var state={comp:0,path:0,level:'micro',session:1,data:{}};
+
+function sk(c,p,l,s){return 'c'+c+'_p'+p+'_'+l+'_s'+s;}
+function gSess(){return state.data[sk(state.comp,state.path,state.level,state.session)]||{};}
+function sSess(obj){var k=sk(state.comp,state.path,state.level,state.session);state.data[k]=Object.assign(gSess(),obj);saveState();updateSidebar();}
+function saveState(){try{localStorage.setItem('proofos_v11',JSON.stringify(state));}catch(e){}}
+function loadState(){try{var s=localStorage.getItem('proofos_v11');if(s)state=JSON.parse(s);}catch(e){}}
+
+function saveKey(){var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your API key first.');return;}if(k.indexOf('sk-')!==0){showKeyStatus('err','Key should start with sk-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
+function clearKey(){document.getElementById('apiKey').value='';try{localStorage.removeItem('pf_ok');}catch(e){}showKeyStatus('','');}
+function showKeyStatus(t,m){var el=document.getElementById('keyStatus');el.className='key-status'+(t?' '+t:'');el.textContent=m;}
+function getKey(){return document.getElementById('apiKey').value.trim()||(function(){try{return localStorage.getItem('pf_ok')||'';}catch(e){return '';}})();}
+function loadSavedKey(){try{var k=localStorage.getItem('pf_ok');if(k){document.getElementById('apiKey').value=k;showKeyStatus('ok','Key loaded.');}}catch(e){}}
+function saveElKeys(){var k=document.getElementById('elKey').value.trim(),v=document.getElementById('elVoiceId').value.trim();if(!k||!v){document.getElementById('elStatus').textContent='Enter both fields.';return;}try{localStorage.setItem('pf_elk',k);localStorage.setItem('pf_elv',v);}catch(e){}document.getElementById('elStatus').textContent='Saved.';}
+function getElKey(){return document.getElementById('elKey').value.trim()||(function(){try{return localStorage.getItem('pf_elk')||'';}catch(e){return '';}})();}
+function getElVoice(){return document.getElementById('elVoiceId').value.trim()||(function(){try{return localStorage.getItem('pf_elv')||'';}catch(e){return '';}})();}
+
+function buildCompSel(){
+  var sel=document.getElementById('compSel');sel.innerHTML='';
+  for(var i=0;i<COMPS.length;i++){
+    var o=document.createElement('option');o.value=i;
+    o.textContent=COMPS[i].code+' — '+COMPS[i].name+' ('+COMPS[i].phase+')';
+    sel.appendChild(o);
+  }
+  sel.value=state.comp;
+}
+
+function buildPathSel(){
+  var sel=document.getElementById('pathSel');sel.innerHTML='';
+  var pathways=COMPS[state.comp].pathways;
+  for(var i=0;i<pathways.length;i++){
+    var o=document.createElement('option');o.value=i;
+    o.textContent=pathways[i].num+' · '+pathways[i].name;
+    sel.appendChild(o);
+  }
+  // clamp path index if new comp has fewer pathways
+  if(state.path>=pathways.length)state.path=0;
+  sel.value=state.path;
+}
+
+function onCompChange(){
+  state.comp=parseInt(document.getElementById('compSel').value);
+  state.path=0;state.session=1;
+  buildPathSel();updateAll();
+}
+function onPathChange(){
+  state.path=parseInt(document.getElementById('pathSel').value);
+  state.session=1;updateAll();
+}
+function setLevel(l,btn){
+  state.level=l;state.session=1;
+  document.getElementById('lvlMicro').className='level-pill';
+  document.getElementById('lvlMini').className='level-pill';
+  document.getElementById('lvlEntry').className='level-pill';
+  btn.className='level-pill '+(l==='micro'?'lm':l==='mini'?'ln':'le');
+  updateAll();
+}
+function updateAll(){saveState();updateNavCrumb();updateSidebar();loadSessionUI();}
+
+function currentPathway(){return COMPS[state.comp].pathways[state.path]||{num:'',name:''};}
+
+function updateNavCrumb(){
+  var c=COMPS[state.comp];var pw=currentPathway();
+  var lbl=LEVEL_LABELS[state.level];var total=LEVELS[state.level];
+  document.getElementById('navCrumb').innerHTML=
+    '<strong>'+c.code+' '+c.name+'</strong>'+
+    '<span class="crumb-sep">›</span>'+pw.num+' · '+pw.name+
+    '<span class="crumb-sep">›</span>'+lbl+' ('+total+' sessions)'+
+    '<span class="crumb-sep">›</span>Session '+String(state.session).padStart(2,'0')+
+    '<br><span style="font-style:italic;color:#999">'+c.voice+'</span>';
+  document.getElementById('uploadAreaSub').textContent=c.code+' · '+pw.num+' '+pw.name+' · '+lbl+' · Session '+state.session;
+}
+
+function updateSidebar(){
+  var total=LEVELS[state.level];var grid=document.getElementById('sessionGrid');
+  grid.innerHTML='';document.getElementById('sessCountLabel').textContent=total;
+  var audio=0,nia=0,social=0;
+  for(var i=1;i<=total;i++){
+    var d=state.data[sk(state.comp,state.path,state.level,i)]||{};
+    if(d.audioReady)audio++;if(d.nia)nia++;if(d.social)social++;
+    var dot=document.createElement('div');
+    var cls='sg-dot';
+    if(i===state.session)cls+=' sel-sess';
+    if(d.social)cls+=' hsocial';else if(d.nia)cls+=' hnia';else if(d.audioReady)cls+=' haudio';
+    dot.className=cls;dot.textContent=String(i).padStart(2,'0');dot.title='Session '+i;
+    (function(idx){dot.onclick=function(){stopPlay();state.session=idx;saveState();updateSidebar();updateNavCrumb();loadSessionUI();};})(i);
+    grid.appendChild(dot);
+  }
+  document.getElementById('cAudio').textContent=audio;
+  document.getElementById('cNia').textContent=nia;
+  document.getElementById('cSocial').textContent=social;
+  document.getElementById('pAudio').textContent=audio+' / '+total;
+  document.getElementById('pNia').textContent=nia+' / '+total;
+  document.getElementById('pSocial').textContent=social+' / '+total;
+  document.getElementById('pAudioFill').style.width=Math.round((audio/total)*100)+'%';
+  document.getElementById('pNiaFill').style.width=Math.round((nia/total)*100)+'%';
+  document.getElementById('pSocialFill').style.width=Math.round((social/total)*100)+'%';
+  var c=COMPS[state.comp];var pw=currentPathway();
+  var es=document.getElementById('exportSummary');
+  if(es)es.innerHTML='<strong>'+c.code+' · '+c.name+'</strong><br>'+pw.num+' '+pw.name+' · '+LEVEL_LABELS[state.level]+' · '+audio+'/'+total+' audio · '+nia+'/'+total+' NIA · '+social+'/'+total+' social';
+}
+
+function loadSessionUI(){
+  var d=gSess();var c=COMPS[state.comp];var pw=currentPathway();
+  var lbl=c.code+' · '+pw.num+' '+pw.name+' · '+LEVEL_LABELS[state.level]+' · Session '+String(state.session).padStart(2,'0');
+  document.getElementById('audioLabel').textContent=lbl;
+  document.getElementById('niaLabel').textContent=lbl;
+  document.getElementById('socialLabel').textContent=lbl;
+  document.getElementById('genStatus').innerHTML='';
+  document.getElementById('uploadBanner').className='upload-banner';
+  document.getElementById('sessionText').value=d.text||'';
+  updateScriptBoxHeader(d.text||'');
+  refreshAudioTab();renderNia();renderSocial();updateNavCrumb();
+}
+
+function updateScriptBoxHeader(text){
+  var h=document.getElementById('scriptBoxHeader');
+  var t=document.getElementById('scriptBoxTitle');
+  var m=document.getElementById('scriptBoxMeta');
+  if(text&&text.trim()){
+    var wc=text.trim().split(/\s+/).length;
+    h.className='script-box-header loaded';t.textContent='Script loaded';
+    m.textContent=wc.toLocaleString()+' words · ~'+Math.ceil(wc/130)+' min read';
+  }else{h.className='script-box-header';t.textContent='Session script';m.textContent='Empty — upload or paste below';}
+}
+function onTextInput(){updateScriptBoxHeader(document.getElementById('sessionText').value);}
+
+// SECTION HEADING PATTERNS — all caps lines, numbered headings, known ScriptPress titles
+var HEADING_PATTERNS = [
+  /^[A-Z][A-Z\s\/&:,()'\-]{4,}$/,                          // ALL CAPS lines (5+ chars)
+  /^\d+[\)\.]\s+[A-Z][A-Z\s]{3,}$/,                        // 1. TITLE or 1) TITLE
+  /^\(?\d+[:\.]\d+\s*[-–]\s*\d+[:\.]\d+\)?/,               // timecodes like (0:00–0:20)
+  /^#+\s+/,                                                  // markdown headings
+  /^\*{1,2}[A-Z][A-Z\s]{3,}\*{1,2}$/,                      // **BOLD CAPS**
+  /^\[pause\]$/i,                                            // [pause] tags
+];
+
+// Known ScriptPress section titles (exact and partial matches)
+var KNOWN_HEADINGS = [
+  'TITLE','OPENING HOOK','AFRICAN GROUNDING','WHY THIS MATTERS',
+  'THE IDEA IN PLAIN LANGUAGE','CASE STUDY','THE TOOL','FRAMEWORK',
+  'BUILD IT NOW','PROOF','SAVE RULES','MARKET ACTION','UNIVERSAL LAW',
+  'REFLECTION','CTA','UNIVERSAL LAW CLOSE','SOCIAL DRAFT',
+  'REEL HOOK','CAROUSEL','LINKEDIN','WHATSAPP','NIA PROMPT',
+  'SECTION','FACILITATOR','NOTE TO','NARRATOR','STAGE DIRECTION'
+];
+
+function isHeadingLine(line) {
+  var trimmed = line.trim();
+  if (!trimmed) return false;
+  // check known heading strings
+  var upper = trimmed.toUpperCase();
+  for (var i = 0; i < KNOWN_HEADINGS.length; i++) {
+    if (upper.indexOf(KNOWN_HEADINGS[i]) === 0) return true;
+  }
+  // check regex patterns
+  for (var j = 0; j < HEADING_PATTERNS.length; j++) {
+    if (HEADING_PATTERNS[j].test(trimmed)) return true;
+  }
+  // lines that are entirely non-sentence (no lowercase letters, under 60 chars)
+  if (trimmed.length < 60 && trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed)) return true;
+  return false;
+}
+
+function cleanForAudio(text) {
+  var lines = text.split('\n');
+  var cleaned = [];
+  var removed = 0;
+  for (var i = 0; i < lines.length; i++) {
+    if (isHeadingLine(lines[i])) {
+      removed++;
+      // replace heading line with empty line to preserve paragraph spacing
+      cleaned.push('');
+    } else {
+      cleaned.push(lines[i]);
+    }
+  }
+  // collapse multiple blank lines into one
+  var result = cleaned.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return {text: result, removed: removed};
+}
+
+function detectHeadings(text) {
+  var lines = text.split('\n');
+  var count = 0;
+  for (var i = 0; i < lines.length; i++) {
+    if (isHeadingLine(lines[i])) count++;
+  }
+  return count;
+}
+
+function saveAndSync(){
+  var t=document.getElementById('sessionText').value.trim();
+  if(!t){alert('Nothing to save — upload or paste your script first.');return;}
+  sSess({text:t});updateScriptBoxHeader(t);refreshAudioTab();
+  // check for headings and show notice
+  var headingCount = detectHeadings(t);
+  var notice = document.getElementById('cleanNotice');
+  if (headingCount > 0) {
+    notice.style.display = 'block';
+    document.getElementById('cleanCount').textContent = headingCount + ' heading line' + (headingCount > 1 ? 's' : '') + ' detected';
+  } else {
+    notice.style.display = 'none';
+  }
+  document.getElementById('genStatus').innerHTML='<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:8px 12px;font-size:12px;color:#085041">Saved and sent to Audio tab.</div>';
+  setTimeout(function(){document.getElementById('genStatus').innerHTML='';},3000);
+}
+
+function cleanAndSync() {
+  var t = document.getElementById('sessionText').value.trim();
+  if (!t) return;
+  var result = cleanForAudio(t);
+  // store cleaned version for audio — original stays in textarea
+  sSess({text: t, audioText: result.text});
+  refreshAudioTab();
+  document.getElementById('cleanNotice').style.display = 'none';
+  document.getElementById('genStatus').innerHTML = '<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:8px 12px;font-size:12px;color:#085041">Cleaned — ' + result.removed + ' heading line' + (result.removed > 1 ? 's' : '') + ' removed from audio. Your original script is unchanged above.</div>';
+  setTimeout(function(){document.getElementById('genStatus').innerHTML='';}, 4000);
+}
+
+function refreshAudioTab(){
+  var d=gSess();
+  var notice=document.getElementById('noScriptNotice');
+  var controls=document.getElementById('audioControls');
+  if(!d.text||!d.text.trim()){notice.style.display='block';controls.style.display='none';return;}
+  notice.style.display='none';controls.style.display='block';
+  // use cleaned audioText if it exists, otherwise fall back to raw text
+  var playText = d.audioText || d.text;
+  words=playText.split(/\s+/).filter(function(w){return w;});
+  var sr=document.getElementById('scriptReader');
+  // show a badge if audio version differs from original
+  var cleanedBadge = d.audioText ? '<span style="font-size:11px;background:#E1F5EE;color:#085041;padding:2px 8px;border-radius:10px;margin-left:8px;border:0.5px solid #5DCAA5">Headings removed</span>' : '<span style="font-size:11px;color:#E24B4A;margin-left:8px">⚠ Headings not yet cleaned</span>';
+  document.getElementById('audioLabel').innerHTML=document.getElementById('audioLabel').textContent + (d.audioText ? '' : '');
+  sr.innerHTML=words.map(function(w,i){return '<span id="w'+i+'">'+w+' </span>';}).join('');
+  var c=COMPS[state.comp];var pw=currentPathway();
+  document.getElementById('playTitle').textContent=c.code+' · '+pw.num+' '+pw.name+' · '+LEVEL_LABELS[state.level]+' · S'+String(state.session).padStart(2,'0');
+  document.getElementById('playSub').innerHTML=words.length+' words · ~'+Math.ceil(words.length/130)+' min' + cleanedBadge;
+}
+
+function clearText(){document.getElementById('fileInput').value='';document.getElementById('sessionText').value='';sSess({text:'',audioText:null});updateScriptBoxHeader('');refreshAudioTab();document.getElementById('uploadBanner').className='upload-banner';document.getElementById('cleanNotice').style.display='none';}
+function switchTab(name){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});var map={session:0,audio:1,nia:2,social:3,export:4};document.querySelectorAll('.tab')[map[name]].classList.add('active');document.getElementById('panel-'+name).classList.add('active');}
+function setMode(m){document.getElementById('modeSystem').className='mode-btn'+(m==='system'?' active':'');document.getElementById('modeEl').className='mode-btn'+(m==='elevenlabs'?' active':'');document.getElementById('systemPanel').style.display=m==='system'?'block':'none';document.getElementById('elPanel').style.display=m==='elevenlabs'?'block':'none';}
+function onFileSelect(e){var f=e.target.files[0];if(f)readFile(f);}
+function readFile(file){var ext=file.name.split('.').pop().toLowerCase();showUploadBanner('loading','Reading '+file.name+'...');if(ext==='txt'){var r=new FileReader();r.onload=function(e){populateText(e.target.result,file.name);};r.onerror=function(){showUploadBanner('err','Could not read file.');};r.readAsText(file);}else if(ext==='docx'||ext==='doc'){var r2=new FileReader();r2.onload=function(e){mammoth.extractRawText({arrayBuffer:e.target.result}).then(function(res){if(res.value.trim())populateText(res.value,file.name);else showUploadBanner('err','File appears empty.');}).catch(function(err){showUploadBanner('err','Could not read: '+err.message);});};r2.onerror=function(){showUploadBanner('err','Could not open file.');};r2.readAsArrayBuffer(file);}else{showUploadBanner('err','Please use .txt or .docx');}}
+function populateText(text,filename){var clean=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();if(!clean){showUploadBanner('err','File appears empty.');return;}var wc=clean.split(/\s+/).length;document.getElementById('sessionText').value=clean;showUploadBanner('ok',filename+' loaded — '+wc.toLocaleString()+' words. Click Save + send to Audio.');updateScriptBoxHeader(clean);sSess({text:clean});refreshAudioTab();}
+function showUploadBanner(type,msg){var el=document.getElementById('uploadBanner');var icon=document.getElementById('uploadBannerIcon');document.getElementById('uploadBannerText').textContent=msg;el.className='upload-banner '+(type||'');icon.innerHTML=type==='ok'?'✓':type==='err'?'✕':'<div class="spinner" style="width:12px;height:12px;border-width:2px;margin:auto"></div>';}
+
+var words=[],wordIdx=0,synth=window.speechSynthesis,utterance=null,speaking=false;
+function loadVoices(){var sel=document.getElementById('voiceSelect');var vs=synth.getVoices();if(!vs.length){setTimeout(loadVoices,300);return;}var cur=sel.value;sel.innerHTML='';var pref=['Microsoft Zira - English (United States)','Microsoft Mark - English (United States)','Microsoft David - English (United States)','Samantha','Google UK English Female'];var sorted=[].slice.call(vs).sort(function(a,b){var ai=pref.indexOf(a.name),bi=pref.indexOf(b.name);if(ai>-1&&bi>-1)return ai-bi;if(ai>-1)return -1;if(bi>-1)return 1;return 0;});sorted.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';sel.appendChild(o);});if(cur)sel.value=cur;}
+function togglePlay(){if(speaking)pausePlay();else startPlay();}
+function startPlay(){var d=gSess();if(!d.text){alert('No script loaded. Go to Session text, paste your script, and click Save + send to Audio.');return;}if(synth.paused){synth.resume();speaking=true;document.getElementById('playBtn').innerHTML='&#10074;&#10074;';return;}
+  // use cleaned audioText for speech if available, otherwise raw text
+  var playText = d.audioText || d.text;
+  words=playText.split(/\s+/).filter(function(w){return w;});wordIdx=0;utterance=new SpeechSynthesisUtterance(playText);var voices=synth.getVoices();var v=voices.find(function(x){return x.name===document.getElementById('voiceSelect').value;});if(v)utterance.voice=v;utterance.rate=parseFloat(document.getElementById('rateSlider').value);utterance.pitch=parseFloat(document.getElementById('pitchSlider').value);utterance.onboundary=function(e){if(e.name==='word'){document.querySelectorAll('.script-reader span').forEach(function(s){s.style.background='';});var el=document.getElementById('w'+wordIdx);if(el){el.style.background='#FAC775';el.style.borderRadius='2px';el.scrollIntoView({block:'nearest'});}document.getElementById('progressFill').style.width=Math.round((wordIdx/words.length)*100)+'%';wordIdx++;}};utterance.onend=function(){speaking=false;document.getElementById('playBtn').innerHTML='&#9654;';document.getElementById('progressFill').style.width='100%';sSess({audioReady:true});updateSidebar();};utterance.onerror=function(e){speaking=false;document.getElementById('playBtn').innerHTML='&#9654;';};synth.cancel();synth.speak(utterance);speaking=true;document.getElementById('playBtn').innerHTML='&#10074;&#10074;';}
+function pausePlay(){synth.pause();speaking=false;document.getElementById('playBtn').innerHTML='&#9654;';}
+function stopPlay(){synth.cancel();speaking=false;wordIdx=0;document.getElementById('playBtn').innerHTML='&#9654;';document.getElementById('progressFill').style.width='0%';document.querySelectorAll('.script-reader span').forEach(function(s){s.style.background='';});}
+function seekProgress(e){var pct=e.offsetX/e.currentTarget.offsetWidth;wordIdx=Math.floor(pct*words.length);stopPlay();startPlay();}
+
+async function playElevenLabs(){var key=getElKey(),voice=getElVoice();var d=gSess();var text=d.audioText||d.text;if(!key||!voice){alert('Save your ElevenLabs keys first.');return;}if(!text){alert('No script loaded.');return;}var sub=document.getElementById('elPlaySub'),out=document.getElementById('elAudioOut');sub.textContent='Generating...';out.innerHTML='<div class="generating"><div class="spinner"></div>This may take 10-30 seconds...</div>';try{var res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{method:'POST',headers:{'xi-api-key':key,'Content-Type':'application/json'},body:JSON.stringify({text:text.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.8}})});if(!res.ok){var err=await res.json();out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+(err.detail&&err.detail.message||res.statusText)+'</span>';return;}var blob=await res.blob();var url=URL.createObjectURL(blob);var c=COMPS[state.comp];var pw=currentPathway();var fname=c.code+'_'+pw.num+'_'+state.level+'_S'+String(state.session).padStart(2,'0')+'_myvoice.mp3';out.innerHTML='<audio controls style="width:100%;margin-top:8px" src="'+url+'"></audio><div style="margin-top:8px"><a href="'+url+'" download="'+fname+'" class="btn btn-sm btn-green">Download audio</a></div>';sub.textContent='Done';sSess({audioReady:true});updateSidebar();}catch(e){out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+e.message+'</span>';}}
+
+async function generateAll(){var text=document.getElementById('sessionText').value.trim();if(!text){alert('Please upload or paste session text first.');return;}var key=getKey();if(!key){alert('Please paste your OpenAI API key and click Save key.');return;}sSess({text:text});updateScriptBoxHeader(text);refreshAudioTab();var c=COMPS[state.comp];var pw=currentPathway();var statusEl=document.getElementById('genStatus');statusEl.innerHTML='<div class="generating"><div class="spinner"></div>Generating NIA coaching script and social drafts...</div>';var prompt='You are building content for NIA, an AI coach on the Afrique Consult AYTE platform.\n\nCompetency: '+c.code+' - '+c.name+'\nPhase: '+c.phase+'\nPassport: '+c.passport+'\nYouth voice: '+c.voice+'\nModule / Pathway: '+pw.num+' '+pw.name+'\nLevel: '+LEVEL_LABELS[state.level]+' ('+LEVELS[state.level]+' sessions)\nSession: '+state.session+'\n\nSESSION CONTENT:\n'+text+'\n\nNIA speaks like a trusted older sibling - warm, direct, African cultural references, never lectures.\n\n=== REFLECTION ===\n3-4 questions NIA asks after the student completes the session.\n\n=== EXERCISE ===\nNIA walks the student through the practical task step by step.\n\n=== SPRINT ===\nDay 3 nudge and Day 7 celebration. 3-4 sentences each.\n\n=== INCOME ===\nNIA connects this session to a real income opportunity. 3-4 sentences.\n\n=== BUDDY ===\nNIA responds when a student feels stuck. 4-5 sentences.\n\n=== SOCIAL DRAFTS ===\nREEL HOOK, CAROUSEL OUTLINE, LINKEDIN ANGLE, WHATSAPP BROADCAST.\n\nOutput ONLY the labelled blocks. No preamble.';try{var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});var data=await res.json();if(data.error){statusEl.innerHTML='<div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;font-size:13px;color:#791F1F">API error: '+data.error.message+'</div>';return;}var raw=data.content&&data.content[0]&&data.content[0].text||'';var sections={};var keys=['REFLECTION','EXERCISE','SPRINT','INCOME','BUDDY'];keys.forEach(function(k,i){var next=keys[i+1];var m=raw.match(next?new RegExp('=== '+k+' ===[\\s\\S]*?(?==== '+next+' ===)','i'):new RegExp('=== '+k+' ===[\\s\\S]*?(?==== SOCIAL|$)','i'));sections[k]=m?m[0].replace(new RegExp('=== '+k+' ===','i'),'').trim():'';});var socM=raw.match(/=== SOCIAL DRAFTS ===([\s\S]*?)$/i);sSess({nia:JSON.stringify(sections),social:socM?socM[1].trim():''});renderNia();renderSocial();statusEl.innerHTML='<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:10px 14px;font-size:13px;color:#085041">Generated - check NIA and Social tabs.</div>';}catch(e){statusEl.innerHTML='<div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;font-size:13px;color:#791F1F">Error: '+e.message+'</div>';}}
+
+function renderNia(){var d=gSess();var el=document.getElementById('niaContent');if(!d.nia){el.innerHTML='<div class="empty-state">Generate the NIA coaching script from the Session text tab first.</div>';return;}var parsed={};try{parsed=JSON.parse(d.nia);}catch(e){el.innerHTML='<div style="white-space:pre-wrap;font-size:13px;line-height:1.8">'+d.nia+'</div>';return;}var html='<button class="copy-btn" onclick="copyNia()">Copy all</button>';NIA_MOMENTS.forEach(function(m){var content=parsed[m.key]||'';if(!content)return;html+='<div class="nia-moment"><div class="nia-moment-header" style="background:'+m.color+'22;border-bottom-color:'+m.color+'55"><div class="nia-icon" style="background:'+m.color+'44">'+m.icon+'</div><div><div class="nia-moment-title" style="color:'+m.tc+'">'+m.label+'</div><div class="nia-moment-sub">'+m.sub+'</div></div></div><div class="nia-moment-body">'+content+'</div></div>';});el.innerHTML=html;}
+function copyNia(){var d=gSess();if(!d.nia)return;var out='';try{var p=JSON.parse(d.nia);NIA_MOMENTS.forEach(function(m){if(p[m.key])out+='['+m.label.toUpperCase()+']\n'+p[m.key]+'\n\n';});}catch(e){out=d.nia;}navigator.clipboard.writeText(out.trim()).catch(function(){});}
+function parseBlocks(text,labels){var lines=text.split('\n');var cur='',curL='';var blocks=[];for(var i=0;i<lines.length;i++){var line=lines[i];var m=null;for(var j=0;j<labels.length;j++){if(line.toUpperCase().indexOf(labels[j])>-1){m=labels[j];break;}}if(m){if(curL)blocks.push({label:curL,text:cur.trim()});curL=m;cur=line.replace(new RegExp(m.replace(/-/g,'\\$&')+':?','i'),'').trim();}else{cur+='\n'+line;}}if(curL)blocks.push({label:curL,text:cur.trim()});return blocks;}
+function renderSocial(){var d=gSess();var el=document.getElementById('socialContent');if(!d.social){el.innerHTML='<div class="empty-state">Generate social drafts from the Session text tab first.</div>';return;}var blocks=parseBlocks(d.social,['REEL HOOK','CAROUSEL OUTLINE','LINKEDIN ANGLE','WHATSAPP BROADCAST']);var html='<button class="copy-btn" onclick="navigator.clipboard.writeText(gSess().social||\'\')">Copy all</button>';if(blocks.length){blocks.forEach(function(b){html+='<div class="social-block"><div class="social-block-title">'+b.label+'</div><div class="social-block-text">'+b.text+'</div></div>';});}else{html+='<div class="social-block"><div class="social-block-text">'+d.social+'</div></div>';}el.innerHTML=html;}
+
+function exportAll(){var c=COMPS[state.comp];var pw=currentPathway();var total=LEVELS[state.level];var out='PROOFOS EXPORT - AYTE\n'+c.code+' '+c.name+'\nModule: '+pw.num+' '+pw.name+' / Level: '+LEVEL_LABELS[state.level]+'\nDate: '+new Date().toLocaleDateString()+'\n'+'='.repeat(60)+'\n\n';for(var i=1;i<=total;i++){var d=state.data[sk(state.comp,state.path,state.level,i)]||{};out+='SESSION '+String(i).padStart(2,'0')+'\n'+'-'.repeat(40)+'\n';if(d.text)out+='[SESSION TEXT]\n'+d.text+'\n\n';if(d.nia){out+='[NIA COACHING SCRIPT]\n';try{var p=JSON.parse(d.nia);NIA_MOMENTS.forEach(function(m){if(p[m.key])out+=m.label.toUpperCase()+'\n'+p[m.key]+'\n\n';});}catch(e){out+=d.nia+'\n\n';}}if(d.social)out+='[SOCIAL DRAFTS]\n'+d.social+'\n\n';out+='\n';}var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/plain'}));a.download='ProofOS_'+c.code+'_'+pw.num+'_'+state.level+'.txt';a.click();}
+function exportSession(){var d=gSess();var c=COMPS[state.comp];var pw=currentPathway();var s=String(state.session).padStart(2,'0');var out='PROOFOS SESSION EXPORT\n'+c.code+' '+c.name+' / '+pw.num+' '+pw.name+' / '+LEVEL_LABELS[state.level]+' / Session '+s+'\n'+'='.repeat(60)+'\n\n';if(d.text)out+='[SESSION TEXT]\n'+d.text+'\n\n';if(d.nia){out+='[NIA COACHING SCRIPT]\n';try{var p=JSON.parse(d.nia);NIA_MOMENTS.forEach(function(m){if(p[m.key])out+=m.label.toUpperCase()+'\n'+p[m.key]+'\n\n';});}catch(e){out+=d.nia+'\n\n';}}if(d.social)out+='[SOCIAL DRAFTS]\n'+d.social+'\n\n';var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/plain'}));a.download='ProofOS_'+c.code+'_'+pw.num+'_'+state.level+'_S'+s+'.txt';a.click();}
+
+// INIT
+loadState();loadSavedKey();
+try{var ek=localStorage.getItem('pf_elk');if(ek)document.getElementById('elKey').value=ek;}catch(e){}
+try{var ev=localStorage.getItem('pf_elv');if(ev)document.getElementById('elVoiceId').value=ev;}catch(e){}
+buildCompSel();buildPathSel();
+var lvlCls={micro:'lm',mini:'ln',entry:'le'};
+document.getElementById('lvlMicro').className='level-pill';
+document.getElementById('lvlMini').className='level-pill';
+document.getElementById('lvlEntry').className='level-pill';
+var activeLevel=state.level||'micro';
+document.getElementById('lvl'+activeLevel.charAt(0).toUpperCase()+activeLevel.slice(1)).className='level-pill '+(lvlCls[activeLevel]||'lm');
+speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
+updateNavCrumb();updateSidebar();loadSessionUI();
+</script>
+</body>
+</html>
