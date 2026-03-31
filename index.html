@@ -128,7 +128,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
 <div class="app">
 <div class="header">
   <div class="logo">Proof<span>OS</span> <span style="font-size:13px;color:#999;font-weight:400">· AYTE</span></div>
-  <div class="badge">14 Competencies · Module Pathways · 3 Levels</div>
+  <div class="badge">15 Competencies · R/B/E Architecture · 3 Levels</div>
 </div>
 <div class="key-bar">
   <div class="key-bar-row">
@@ -326,107 +326,124 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
 </div>
 </div>
 <script>
-// ALL 14 COMPETENCIES WITH THEIR ACTUAL MODULE PATHWAYS
+// AYTE MASTER COMPETENCY ARCHITECTURE — FINAL
+// 15 Competencies: RESET (R1-R7) | REBUILD (B1-B5) | EARN (E1-E3)
 var COMPS = [
-  {code:'C5', name:'Emotional Regulation & Resilience', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I know my triggers, I have tools, and I bounce back.',
-   pathways:[
-    {num:'M15',name:'Unshakeable Resilience'},{num:'M17',name:'Mental Fitness'},{num:'M27',name:'Fearless Becoming'},
-    {num:'M32',name:'Break the Silence (Men)'},{num:'M36',name:'Mental Fitness for Men'},{num:'M39',name:'Emotional Mastery'},
-    {num:'M42',name:'Resilience Reset'},{num:'M44',name:'Grit & Grace Studio'},{num:'M46',name:'Recovery Lab'},
-    {num:'M48',name:'Emotional Regulation'},{num:'M105',name:'Emotion First'}
-  ]},
-  {code:'C6', name:'Identity & Self-Direction', phase:'RESET', passport:'Self-Stabiliser',
+  {code:'R1', name:'Identity & Self-Direction', phase:'RESET', passport:'Self-Stabiliser',
    voice:'I know who I am, what I stand for, and I act from that.',
    pathways:[
-    {num:'M11',name:'Life by Design'},{num:'M12',name:'Soul Force'},{num:'M21',name:'Identity Scripts'},
-    {num:'M22',name:'Dream Blueprint'},{num:'M54',name:'Lead from Within'},{num:'M76',name:'Mindset Alchemy'},
-    {num:'M78',name:'Clarity Lab'},{num:'M79',name:'Action Manifesto'},{num:'M82',name:'Your Life is the Brand'},
-    {num:'M83',name:'Purpose Finding'},{num:'M84',name:'Worthiness Reset'}
+    {num:'C01',name:'Life by Design'},{num:'C02',name:'Soul Force'},{num:'C03',name:'Identity Scripts'},
+    {num:'C04',name:'Dream Blueprint'},{num:'C05',name:'Lead from Within'},{num:'C06',name:'Mindset Reset'},
+    {num:'C07',name:'Clarity Lab'},{num:'C08',name:'Action Manifesto'},{num:'C09',name:'Your Life, Your Brand'},
+    {num:'C10',name:'Find Your Purpose'},{num:'C11',name:'Worthiness Reset'}
   ]},
-  {code:'C3', name:'Financial Self-Management', phase:'RESET', passport:'Self-Stabiliser',
+  {code:'R2', name:'Emotional Regulation & Resilience', phase:'RESET', passport:'Self-Stabiliser',
+   voice:'I know my triggers, I have tools, and I bounce back.',
+   pathways:[
+    {num:'C01',name:'Unshakeable Resilience'},{num:'C02',name:'Mental Fitness'},{num:'C03',name:'Fearless Becoming'},
+    {num:'C04',name:'Break the Silence'},{num:'C05',name:'Mental Fitness for Men'},{num:'C06',name:'Emotional Mastery'},
+    {num:'C07',name:'Resilience Reset'},{num:'C08',name:'Grit & Grace'},{num:'C09',name:'Recovery Lab'},
+    {num:'C10',name:'Regulate Under Pressure'},{num:'C11',name:'Emotion First'}
+  ]},
+  {code:'R3', name:'Money Mindset & Financial Discipline', phase:'RESET', passport:'Self-Stabiliser',
    voice:'I know where my money goes and I make decisions on purpose.',
    pathways:[
-    {num:'M5',name:'Wealth Mindset Starter'},{num:'M90',name:'Hustle Budgeting'},{num:'M91',name:'Youth & Credit'},
-    {num:'M92',name:'Simple Investing'},{num:'M93',name:'Budget Like a Boss'},{num:'M94',name:'Value for Money'},
-    {num:'M101',name:'Money Made Simple'},{num:'M33',name:'Money + Masculinity/Femininity Reset'}
+    {num:'C01',name:'Money Story Reset'},{num:'C02',name:'Wealth Mindset Starter'},{num:'C03',name:'Money Habits'},
+    {num:'C04',name:'Budget Like a Boss'},{num:'C05',name:'Hustle Budgeting'},{num:'C06',name:'Cashflow Confidence'},
+    {num:'C07',name:'Youth & Credit'},{num:'C08',name:'Money Made Simple'},{num:'C09',name:'Value for Money'},
+    {num:'C10',name:'Simple Investing'}
   ]},
-  {code:'C4', name:'Digital Safety, Reputation & AI Ethics', phase:'RESET', passport:'Self-Stabiliser',
+  {code:'R4', name:'Digital Safety, Reputation & AI Ethics', phase:'RESET', passport:'Self-Stabiliser',
    voice:'I know my digital footprint and I use AI with integrity.',
    pathways:[
-    {num:'M7',name:'Cyber Defenders'},{num:'M18',name:'Cyber-Citizenship'},{num:'M23',name:'Safe Socials'},
-    {num:'M51',name:'Digital Hygiene'},{num:'M89',name:'Digital Boundaries'},{num:'M132',name:'AI Ethics & Society Studio'},
-    {num:'M144',name:'Workplace AI & Digital Responsibility'},{num:'M150',name:'Digital Ethics'}
+    {num:'C01',name:'Cyber Defenders'},{num:'C02',name:'Digital Citizenship'},{num:'C03',name:'Safe Socials'},
+    {num:'C04',name:'Digital Hygiene'},{num:'C05',name:'Digital Boundaries'},{num:'C06',name:'AI Ethics & Society'},
+    {num:'C07',name:'Responsible AI at Work'},{num:'C08',name:'Digital Ethics'}
   ]},
-  {code:'C12', name:'Physical Wellbeing & Performance Discipline', phase:'RESET', passport:'Self-Stabiliser',
+  {code:'R5', name:'Physical Wellbeing & Performance Discipline', phase:'RESET', passport:'Self-Stabiliser',
    voice:'I manage my energy deliberately and show up consistently.',
    pathways:[
-    {num:'M37',name:'Mind-Body Harmony'},{num:'M38',name:'High-Performance Living'},{num:'M43',name:'Tech-Mindfulness'},
-    {num:'M47',name:'Rest Rhythm'},{num:'M50',name:'Wellness Starter'},{num:'M41',name:'Digital Soul Detox'},
-    {num:'M40',name:'Inner Peace Lab'},{num:'M53',name:'Inner Peace Lab (Men)'}
+    {num:'C01',name:'Mind-Body Harmony'},{num:'C02',name:'High-Performance Living'},{num:'C03',name:'Inner Peace Lab'},
+    {num:'C04',name:'Digital Reset'},{num:'C05',name:'Mindful Tech Use'},{num:'C06',name:'Rest Rhythm'},
+    {num:'C07',name:'Wellness Starter'},{num:'C08',name:'Recovery for Performance'}
   ]},
-  {code:'C13', name:'Relationship Intelligence & Intergenerational Navigation', phase:'RESET', passport:'Self-Stabiliser',
+  {code:'R6', name:'Relationships, Boundaries & Belonging', phase:'RESET', passport:'Self-Stabiliser',
    voice:'I navigate family expectations and personal direction without losing either.',
    pathways:[
-    {num:'M19',name:'Culture x Code'},{num:'M26',name:'Relationship Intelligence'},{num:'M33',name:'Money + Masculinity/Femininity Reset'},
-    {num:'M100',name:'Safe Circles & Boundaries'},{num:'M105',name:'Emotion First'},{num:'M108',name:'Family Flow Series'},
-    {num:'M106',name:'Safe Choices (SRH & Consent)'}
+    {num:'C01',name:'Belonging Without Losing Yourself'},{num:'C02',name:'Culture x Code'},
+    {num:'C03',name:'Navigating Family Expectations'},{num:'C04',name:'Boundaries at Home'},
+    {num:'C05',name:'Healthy Relationships'},{num:'C06',name:'Feel It, Name It, Navigate It'},
+    {num:'C07',name:'Safe Choices'},{num:'C08',name:'Bridging Generations'},
+    {num:'C09',name:'Family as a Team'},{num:'C10',name:'Safe Circles at Home'}
   ]},
-  {code:'C7', name:'Communication & Relationship Navigation', phase:'RESET / REBUILD', passport:'Self-Stabiliser to Skill Builder',
+  {code:'R7', name:'Communication, Conflict & Connection', phase:'RESET', passport:'Self-Stabiliser',
    voice:'I can say what I need, hear what others need, and repair when things break.',
    pathways:[
-    {num:'M26',name:'Relationship Intelligence'},{num:'M49',name:'Safe Expression'},{num:'M97',name:'Professional Edge'},
-    {num:'M100',name:'Safe Circles & Boundaries'},{num:'M104',name:'Street Smart Lab'},{num:'M107',name:'Self-Coaching Toolbox'},
-    {num:'M141',name:'Modern Team Communication'},{num:'M142',name:'Feedback & Coachability Loop'},{num:'M75',name:'Dialogues That Work'}
+    {num:'C01',name:'Safe Expression'},{num:'C02',name:'Say It Clearly'},{num:'C03',name:'Listen to Understand'},
+    {num:'C04',name:'Conflict Repair'},{num:'C05',name:'Safe Circles & Boundaries'},{num:'C06',name:'Dialogues That Work'},
+    {num:'C07',name:'Feedback & Coachability'},{num:'C08',name:'Modern Team Communication'},
+    {num:'C09',name:'Professional Edge'},{num:'C10',name:'Self-Coaching Toolbox'}
   ]},
-  {code:'C1', name:'Priority & Planning Literacy', phase:'REBUILD', passport:'Skill Builder',
+  {code:'B1', name:'Priority & Planning Literacy', phase:'REBUILD', passport:'Skill Builder',
    voice:'I know what matters and I can show it.',
    pathways:[
-    {num:'M96',name:'Productivity Tools Lab'},{num:'M143',name:'Reliability & Delivery Systems'},{num:'M38',name:'High-Performance Living'},
-    {num:'M86',name:'Time Architect'},{num:'M87',name:'Goal Setting Lab'},{num:'M102',name:'Daily Flow Mastery'}
+    {num:'C01',name:'Design Your Time'},{num:'C02',name:'Goal Setting Lab'},{num:'C03',name:'Productivity Tools'},
+    {num:'C04',name:'Master Your Day'},{num:'C05',name:'Performance for Output'},{num:'C06',name:'Reset Planner'},
+    {num:'C07',name:'Work Priorities Blueprint'}
   ]},
-  {code:'C2', name:'Execution Reliability', phase:'REBUILD / EARN', passport:'Skill Builder to Income Activator',
+  {code:'B2', name:'Execution Reliability', phase:'REBUILD', passport:'Skill Builder',
    voice:'I do what I say I will do and I can prove it.',
    pathways:[
-    {num:'M143',name:'Reliability & Delivery Systems'},{num:'M88',name:'Habit Craft'},{num:'M85',name:'Reset Planner'},
-    {num:'M96',name:'Productivity Tools Lab'},{num:'M38',name:'High-Performance Living'},{num:'M102',name:'Daily Flow Mastery'},
-    {num:'M35',name:'Habit Detox'}
+    {num:'C01',name:'Habit Reset'},{num:'C02',name:'Build Better Habits'},{num:'C03',name:'Execution Reset'},
+    {num:'C04',name:'Productivity Tools for Delivery'},{num:'C05',name:'Reliable Delivery'},
+    {num:'C06',name:'Consistent Flow'},{num:'C07',name:'Professional Delivery'}
   ]},
-  {code:'C9', name:'Digital Fluency & AI Literacy', phase:'REBUILD / EARN', passport:'Skill Builder',
+  {code:'B3', name:'Digital Fluency & AI Literacy', phase:'REBUILD', passport:'Skill Builder',
    voice:'I use digital tools purposefully and AI responsibly and I can show the output.',
    pathways:[
-    {num:'M2',name:'Tech for Change'},{num:'M81',name:'Meta-Learning & AI Co-Pilot'},{num:'M128',name:'AI Futures Series'},
-    {num:'M132',name:'AI Ethics & Society Studio'},{num:'M144',name:'Workplace AI'},{num:'M147',name:'AI Workforce Series'}
+    {num:'C01',name:'Tech for Change'},{num:'C02',name:'AI Co-Pilot Skills'},{num:'C03',name:'Creative AI Lab'},
+    {num:'C04',name:'AI for Good'},{num:'C05',name:'Build Your AI Assistant'},{num:'C06',name:'AI Ethics & Society'},
+    {num:'C07',name:'Responsible AI at Work'},{num:'C08',name:'AI Architect'},{num:'C09',name:'Data Alchemist'},
+    {num:'C10',name:'Automation Explorer'},{num:'C11',name:'AI Creator Lab'},{num:'C12',name:'Future Coder'},
+    {num:'C13',name:'Digital Problem Solving'}
   ]},
-  {code:'C11', name:'Analytical & Systems Thinking (African Context)', phase:'REBUILD', passport:'Skill Builder',
+  {code:'B4', name:'Analytical & Systems Thinking (African Context)', phase:'REBUILD', passport:'Skill Builder',
    voice:'I see the whole system, find the root cause, and act on it.',
    pathways:[
-    {num:'M20',name:'Ancestor Algorithms'},{num:'M56',name:'Strategic Thinking Lab'},{num:'M63',name:'Social Innovation Sprint'},
-    {num:'M72',name:'Spatial Justice'},{num:'M103',name:'Decision Lab'},{num:'M153',name:'Problem Engineer'},
-    {num:'M161',name:'Industrial Thinker'},{num:'M104',name:'Street Smart Lab'}
+    {num:'C01',name:'Ancestor Algorithms'},{num:'C02',name:'Strategic Thinking Lab'},{num:'C03',name:'Social Innovation Sprint'},
+    {num:'C04',name:'Systems in Motion'},{num:'C05',name:'Decision Lab'},{num:'C06',name:'Street Smart Thinking'},
+    {num:'C07',name:'Problem Engineer'},{num:'C08',name:'Industrial Thinker'}
   ]},
-  {code:'C14', name:'Civic Identity & Community Agency', phase:'REBUILD / EARN', passport:'Skill Builder to Income Activator',
+  {code:'B5', name:'Civic Identity & Community Agency', phase:'REBUILD', passport:'Skill Builder',
    voice:'I know how to advocate safely and build coalitions that create real change.',
    pathways:[
-    {num:'M14',name:'Citizen X'},{num:'M57',name:'Servant Leadership'},{num:'M64',name:'Civic Power Toolkit'},
-    {num:'M65',name:'Grassroots Movement Lab'},{num:'M66',name:'Partnership & Advocacy'},{num:'M70',name:'Voice in the Village'},
-    {num:'M72',name:'Spatial Justice'},{num:'M73',name:'Policy Power'},{num:'M74',name:'Governance Clinics'},
-    {num:'M75',name:'Dialogues That Work'}
+    {num:'C01',name:'Citizen X'},{num:'C02',name:'Servant Leadership'},{num:'C03',name:'Civic Power Toolkit'},
+    {num:'C04',name:'Grassroots Movement Lab'},{num:'C05',name:'Partnership & Advocacy'},{num:'C06',name:'Voice in the Village'},
+    {num:'C07',name:'Spatial Justice'},{num:'C08',name:'Policy Power'},{num:'C09',name:'Governance Clinics'},
+    {num:'C10',name:'Community Dialogue'}
   ]},
-  {code:'C8', name:'Opportunity Activation', phase:'EARN', passport:'Income Activator',
+  {code:'E1', name:'Opportunity Activation', phase:'EARN', passport:'Income Activator',
    voice:'I find the door, knock on it, and follow through until it opens.',
    pathways:[
-    {num:'M1',name:'My First Job Toolkit'},{num:'M8',name:'FinTech Builders'},{num:'M29',name:'Business Scaling'},
-    {num:'M31',name:'Global Mobility & Scholarships'},{num:'M67',name:'Impact Design Challenge'},
-    {num:'M95',name:'Career Acceleration Hub'},{num:'M98',name:'Side Hustle Mastery'},{num:'M99',name:'Reinvention Roadmap'}
+    {num:'C01',name:'My First Job Toolkit'},{num:'C02',name:'Gen Z Ready'},{num:'C03',name:'Show Up Ready'},
+    {num:'C04',name:'Career Acceleration Hub'},{num:'C05',name:'Trade & Logistics Tech'},
+    {num:'C06',name:'Reinvention Roadmap'},{num:'C07',name:'Beyond Borders'},
+    {num:'C08',name:'Opportunity Outreach'},{num:'C09',name:'Pitch & Follow Through'}
   ]},
-  {code:'C10', name:'Entrepreneurial Thinking & Market Activation', phase:'EARN', passport:'Income Activator',
+  {code:'E2', name:'Offer Design & Market Testing', phase:'EARN', passport:'Income Activator',
    voice:'I identify a need, design an offer, test it, and improve it.',
    pathways:[
-    {num:'M3',name:'From Hustle to Impact'},{num:'M6',name:'Entrepreneurship Foundations'},{num:'M16',name:'Startup Development'},
-    {num:'M29',name:'Business Scaling'},{num:'M63',name:'Social Innovation Sprint'},{num:'M65',name:'Grassroots Movement Lab'},
-    {num:'M67',name:'Impact Design Challenge'},{num:'M68',name:'Green & Circular Ventures'},
-    {num:'M98',name:'Side Hustle Mastery'},{num:'M128',name:'AI Kidpreneurs'}
+    {num:'C01',name:'From Hustle to Impact'},{num:'C02',name:'Start with Value'},{num:'C03',name:'Build the Offer'},
+    {num:'C04',name:'Social Innovation Sprint'},{num:'C05',name:'Impact Design Challenge'},
+    {num:'C06',name:'Side Hustle Mastery'},{num:'C07',name:'Monetize Creativity'},
+    {num:'C08',name:'AI Ventures'},{num:'C09',name:'Offer Design'},{num:'C10',name:'Market Testing Sprint'}
+  ]},
+  {code:'E3', name:'Income Execution & Growth Discipline', phase:'EARN', passport:'Income Activator',
+   voice:'I deliver consistently, convert traction into income, and grow with intention.',
+   pathways:[
+    {num:'C01',name:'Business Growth'},{num:'C02',name:'Professional Delivery'},{num:'C03',name:'Client Trust & Retention'},
+    {num:'C04',name:'First Income Systems'},{num:'C05',name:'From Delivery to Repeat Business'},
+    {num:'C06',name:'Cashflow for Earners'},{num:'C07',name:'Growth Discipline'},{num:'C08',name:'Service Quality'}
   ]}
 ];
 
@@ -446,8 +463,8 @@ var state={comp:0,path:0,level:'micro',session:1,data:{}};
 function sk(c,p,l,s){return 'c'+c+'_p'+p+'_'+l+'_s'+s;}
 function gSess(){return state.data[sk(state.comp,state.path,state.level,state.session)]||{};}
 function sSess(obj){var k=sk(state.comp,state.path,state.level,state.session);state.data[k]=Object.assign(gSess(),obj);saveState();updateSidebar();}
-function saveState(){try{localStorage.setItem('proofos_v11',JSON.stringify(state));}catch(e){}}
-function loadState(){try{var s=localStorage.getItem('proofos_v11');if(s)state=JSON.parse(s);}catch(e){}}
+function saveState(){try{localStorage.setItem('proofos_v12',JSON.stringify(state));}catch(e){}}
+function loadState(){try{var s=localStorage.getItem('proofos_v12');if(s)state=JSON.parse(s);}catch(e){}}
 
 function saveKey(){var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your Anthropic API key first.');return;}if(k.indexOf('sk-ant-')!==0){showKeyStatus('err','This does not look right — your Anthropic key should start with sk-ant-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
 function clearKey(){document.getElementById('apiKey').value='';try{localStorage.removeItem('pf_ok');}catch(e){}showKeyStatus('','');}
