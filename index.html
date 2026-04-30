@@ -128,7 +128,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
 <div class="app">
 <div class="header">
   <div class="logo">Proof<span>OS</span> <span style="font-size:13px;color:#999;font-weight:400">· AYTE</span></div>
-  <div class="badge">15 Competencies · R/B/E Architecture · 3 Levels</div>
+  <div class="badge">5 Operating Systems · AYTE Curriculum</div>
 </div>
 <div class="key-bar">
   <div class="key-bar-row">
@@ -161,8 +161,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
         <span class="pill-name">Mini</span>
         <span class="pill-sub">8 sessions · 2 hours</span>
       </button>
-      <button class="level-pill" id="lvlEntry" onclick="setLevel('entry',this)">
-        <span class="pill-name">Entry</span>
+      <button class="level-pill" id="lvlProve" onclick="setLevel('prove',this)">
+        <span class="pill-name">Prove</span>
         <span class="pill-sub">20 sessions · 5 hours</span>
       </button>
     </div>
@@ -336,129 +336,111 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
 </div>
 </div>
 <script>
-// AYTE MASTER COMPETENCY ARCHITECTURE — FINAL
-// 15 Competencies: RESET (R1-R7) | REBUILD (B1-B5) | EARN (E1-E3)
+// AYTE — 5 OPERATING SYSTEM ARCHITECTURE
+// Inner Stability | Life Relationships | Work Readiness | Venture Builder | Emerging Leaders
 var COMPS = [
-  {code:'R1', name:'Identity & Self-Direction', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I know who I am, what I stand for, and I act from that.',
-   pathways:[
-    {num:'C01',name:'Life by Design'},{num:'C02',name:'Soul Force'},{num:'C03',name:'Identity Scripts'},
-    {num:'C04',name:'Dream Blueprint'},{num:'C05',name:'Lead from Within'},{num:'C06',name:'Mindset Reset'},
-    {num:'C07',name:'Clarity Lab'},{num:'C08',name:'Action Manifesto'},{num:'C09',name:'Your Life, Your Brand'},
-    {num:'C10',name:'Find Your Purpose'},{num:'C11',name:'Worthiness Reset'}
-  ]},
-  {code:'R2', name:'Emotional Regulation & Resilience', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I know my triggers, I have tools, and I bounce back.',
-   pathways:[
-    {num:'C01',name:'Unshakeable Resilience'},{num:'C02',name:'Mental Fitness'},{num:'C03',name:'Fearless Becoming'},
-    {num:'C04',name:'Break the Silence'},{num:'C05',name:'Mental Fitness for Men'},{num:'C06',name:'Emotional Mastery'},
-    {num:'C07',name:'Resilience Reset'},{num:'C08',name:'Grit & Grace'},{num:'C09',name:'Recovery Lab'},
-    {num:'C10',name:'Regulate Under Pressure'},{num:'C11',name:'Emotion First'}
-  ]},
-  {code:'R3', name:'Money Mindset & Financial Discipline', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I know where my money goes and I make decisions on purpose.',
-   pathways:[
-    {num:'C01',name:'Money Story Reset'},{num:'C02',name:'Wealth Mindset Starter'},{num:'C03',name:'Money Habits'},
-    {num:'C04',name:'Budget Like a Boss'},{num:'C05',name:'Hustle Budgeting'},{num:'C06',name:'Cashflow Confidence'},
-    {num:'C07',name:'Youth & Credit'},{num:'C08',name:'Money Made Simple'},{num:'C09',name:'Value for Money'},
-    {num:'C10',name:'Simple Investing'}
-  ]},
-  {code:'R4', name:'Digital Safety, Reputation & AI Ethics', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I know my digital footprint and I use AI with integrity.',
-   pathways:[
-    {num:'C01',name:'Cyber Defenders'},{num:'C02',name:'Digital Citizenship'},{num:'C03',name:'Safe Socials'},
-    {num:'C04',name:'Digital Hygiene'},{num:'C05',name:'Digital Boundaries'},{num:'C06',name:'AI Ethics & Society'},
-    {num:'C07',name:'Responsible AI at Work'},{num:'C08',name:'Digital Ethics'}
-  ]},
-  {code:'R5', name:'Physical Wellbeing & Performance Discipline', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I manage my energy deliberately and show up consistently.',
-   pathways:[
-    {num:'C01',name:'Mind-Body Harmony'},{num:'C02',name:'High-Performance Living'},{num:'C03',name:'Inner Peace Lab'},
-    {num:'C04',name:'Digital Reset'},{num:'C05',name:'Mindful Tech Use'},{num:'C06',name:'Rest Rhythm'},
-    {num:'C07',name:'Wellness Starter'},{num:'C08',name:'Recovery for Performance'}
-  ]},
-  {code:'R6', name:'Relationships, Boundaries & Belonging', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I navigate family expectations and personal direction without losing either.',
-   pathways:[
-    {num:'C01',name:'Belonging Without Losing Yourself'},{num:'C02',name:'Culture x Code'},
-    {num:'C03',name:'Navigating Family Expectations'},{num:'C04',name:'Boundaries at Home'},
-    {num:'C05',name:'Healthy Relationships'},{num:'C06',name:'Feel It, Name It, Navigate It'},
-    {num:'C07',name:'Safe Choices'},{num:'C08',name:'Bridging Generations'},
-    {num:'C09',name:'Family as a Team'},{num:'C10',name:'Safe Circles at Home'}
-  ]},
-  {code:'R7', name:'Communication, Conflict & Connection', phase:'RESET', passport:'Self-Stabiliser',
-   voice:'I can say what I need, hear what others need, and repair when things break.',
-   pathways:[
-    {num:'C01',name:'Safe Expression'},{num:'C02',name:'Say It Clearly'},{num:'C03',name:'Listen to Understand'},
-    {num:'C04',name:'Conflict Repair'},{num:'C05',name:'Safe Circles & Boundaries'},{num:'C06',name:'Dialogues That Work'},
-    {num:'C07',name:'Feedback & Coachability'},{num:'C08',name:'Modern Team Communication'},
-    {num:'C09',name:'Professional Edge'},{num:'C10',name:'Self-Coaching Toolbox'}
-  ]},
-  {code:'B1', name:'Priority & Planning Literacy', phase:'REBUILD', passport:'Skill Builder',
-   voice:'I know what matters and I can show it.',
-   pathways:[
-    {num:'C01',name:'Design Your Time'},{num:'C02',name:'Goal Setting Lab'},{num:'C03',name:'Productivity Tools'},
-    {num:'C04',name:'Master Your Day'},{num:'C05',name:'Performance for Output'},{num:'C06',name:'Reset Planner'},
-    {num:'C07',name:'Work Priorities Blueprint'}
-  ]},
-  {code:'B2', name:'Execution Reliability', phase:'REBUILD', passport:'Skill Builder',
-   voice:'I do what I say I will do and I can prove it.',
-   pathways:[
-    {num:'C01',name:'Habit Reset'},{num:'C02',name:'Build Better Habits'},{num:'C03',name:'Execution Reset'},
-    {num:'C04',name:'Productivity Tools for Delivery'},{num:'C05',name:'Reliable Delivery'},
-    {num:'C06',name:'Consistent Flow'},{num:'C07',name:'Professional Delivery'}
-  ]},
-  {code:'B3', name:'Digital Fluency & AI Literacy', phase:'REBUILD', passport:'Skill Builder',
-   voice:'I use digital tools purposefully and AI responsibly and I can show the output.',
-   pathways:[
-    {num:'C01',name:'Tech for Change'},{num:'C02',name:'AI Co-Pilot Skills'},{num:'C03',name:'Creative AI Lab'},
-    {num:'C04',name:'AI for Good'},{num:'C05',name:'Build Your AI Assistant'},{num:'C06',name:'AI Ethics & Society'},
-    {num:'C07',name:'Responsible AI at Work'},{num:'C08',name:'AI Architect'},{num:'C09',name:'Data Alchemist'},
-    {num:'C10',name:'Automation Explorer'},{num:'C11',name:'AI Creator Lab'},{num:'C12',name:'Future Coder'},
-    {num:'C13',name:'Digital Problem Solving'}
-  ]},
-  {code:'B4', name:'Analytical & Systems Thinking (African Context)', phase:'REBUILD', passport:'Skill Builder',
-   voice:'I see the whole system, find the root cause, and act on it.',
-   pathways:[
-    {num:'C01',name:'Ancestor Algorithms'},{num:'C02',name:'Strategic Thinking Lab'},{num:'C03',name:'Social Innovation Sprint'},
-    {num:'C04',name:'Systems in Motion'},{num:'C05',name:'Decision Lab'},{num:'C06',name:'Street Smart Thinking'},
-    {num:'C07',name:'Problem Engineer'},{num:'C08',name:'Industrial Thinker'}
-  ]},
-  {code:'B5', name:'Civic Identity & Community Agency', phase:'REBUILD', passport:'Skill Builder',
-   voice:'I know how to advocate safely and build coalitions that create real change.',
-   pathways:[
-    {num:'C01',name:'Citizen X'},{num:'C02',name:'Servant Leadership'},{num:'C03',name:'Civic Power Toolkit'},
-    {num:'C04',name:'Grassroots Movement Lab'},{num:'C05',name:'Partnership & Advocacy'},{num:'C06',name:'Voice in the Village'},
-    {num:'C07',name:'Spatial Justice'},{num:'C08',name:'Policy Power'},{num:'C09',name:'Governance Clinics'},
-    {num:'C10',name:'Community Dialogue'}
-  ]},
-  {code:'E1', name:'Opportunity Activation', phase:'EARN', passport:'Income Activator',
-   voice:'I find the door, knock on it, and follow through until it opens.',
-   pathways:[
-    {num:'C01',name:'My First Job Toolkit'},{num:'C02',name:'Gen Z Ready'},{num:'C03',name:'Show Up Ready'},
-    {num:'C04',name:'Career Acceleration Hub'},{num:'C05',name:'Trade & Logistics Tech'},
-    {num:'C06',name:'Reinvention Roadmap'},{num:'C07',name:'Beyond Borders'},
-    {num:'C08',name:'Opportunity Outreach'},{num:'C09',name:'Pitch & Follow Through'}
-  ]},
-  {code:'E2', name:'Offer Design & Market Testing', phase:'EARN', passport:'Income Activator',
-   voice:'I identify a need, design an offer, test it, and improve it.',
-   pathways:[
-    {num:'C01',name:'From Hustle to Impact'},{num:'C02',name:'Start with Value'},{num:'C03',name:'Build the Offer'},
-    {num:'C04',name:'Social Innovation Sprint'},{num:'C05',name:'Impact Design Challenge'},
-    {num:'C06',name:'Side Hustle Mastery'},{num:'C07',name:'Monetize Creativity'},
-    {num:'C08',name:'AI Ventures'},{num:'C09',name:'Offer Design'},{num:'C10',name:'Market Testing Sprint'}
-  ]},
-  {code:'E3', name:'Income Execution & Growth Discipline', phase:'EARN', passport:'Income Activator',
-   voice:'I deliver consistently, convert traction into income, and grow with intention.',
-   pathways:[
-    {num:'C01',name:'Business Growth'},{num:'C02',name:'Professional Delivery'},{num:'C03',name:'Client Trust & Retention'},
-    {num:'C04',name:'First Income Systems'},{num:'C05',name:'From Delivery to Repeat Business'},
-    {num:'C06',name:'Cashflow for Earners'},{num:'C07',name:'Growth Discipline'},{num:'C08',name:'Service Quality'}
-  ]}
+  {
+    code:'IS', name:'Inner Stability OS',
+    phase:'Foundation', passport:'Self-Stabiliser',
+    voice:'I understand myself, I can regulate under pressure, and I reach for support early.',
+    pathways:[
+      {num:'IS-NY-1', name:'Emotional Awareness, Stress Signals & Pattern Noticing', track:'Notice Yourself'},
+      {num:'IS-NY-2', name:'Shame, Comparison & Inner Narrative', track:'Notice Yourself'},
+      {num:'IS-NY-3', name:'Identity, Needs & Inner Honesty', track:'Notice Yourself'},
+      {num:'IS-SS-1', name:'Reset Tools, Grounding & Regulation', track:'Steady Your System'},
+      {num:'IS-SS-2', name:'Rest, Sleep & Digital Load', track:'Steady Your System'},
+      {num:'IS-SS-3', name:'Pressure Recovery & Healthy Coping', track:'Steady Your System'},
+      {num:'IS-BR-1', name:'Daily Stability & Energy Protection', track:'Build Your Rhythm'},
+      {num:'IS-BR-2', name:'Boundaries, Workload & Life Balance', track:'Build Your Rhythm'},
+      {num:'IS-BR-3', name:'Support Systems & Everyday Wellbeing', track:'Build Your Rhythm'},
+      {num:'IS-RS-1', name:'Asking for Help Early', track:'Reach for Support'},
+      {num:'IS-RS-2', name:'Recovery After Hard Seasons', track:'Reach for Support'},
+      {num:'IS-RS-3', name:'Support Pathways & Help-Seeking Judgment', track:'Reach for Support'}
+    ]
+  },
+  {
+    code:'LR', name:'Life Relationships OS',
+    phase:'Foundation', passport:'Relationship Builder',
+    voice:'I belong wisely, set clear boundaries, build real trust, and make healthier relationship choices.',
+    pathways:[
+      {num:'LR-BW-1', name:'Identity, Belonging & Peer Influence', track:'Belong Well'},
+      {num:'LR-BW-2', name:'Friendship Discernment & Social Pressure', track:'Belong Well'},
+      {num:'LR-BW-3', name:'Family Dynamics & Respectful Communication', track:'Belong Well'},
+      {num:'LR-CB-1', name:'Boundaries, Consent & Self-Respect', track:'Set Clear Boundaries'},
+      {num:'LR-CB-2', name:'Saying No, Asking Clearly & Holding Limits', track:'Set Clear Boundaries'},
+      {num:'LR-CB-3', name:'Digital Boundaries & Online Relationship Safety', track:'Set Clear Boundaries'},
+      {num:'LR-BT-1', name:'Communication, Listening & Emotional Honesty', track:'Build Real Trust'},
+      {num:'LR-BT-2', name:'Trust, Reciprocity & Healthy Connection', track:'Build Real Trust'},
+      {num:'LR-BT-3', name:'Conflict, Repair & Accountability', track:'Build Real Trust'},
+      {num:'LR-RC-1', name:'Red Flags, Green Flags & Relationship Judgment', track:'Repair and Choose'},
+      {num:'LR-RC-2', name:'Dating, Attachment & Healthy Choices', track:'Repair and Choose'},
+      {num:'LR-RC-3', name:'Letting Go, Ending Well & Rebuilding', track:'Repair and Choose'}
+    ]
+  },
+  {
+    code:'WR', name:'Work Readiness OS',
+    phase:'Transition', passport:'Work-Ready',
+    voice:'I can enter work well and convert opportunity into a stable foundation.',
+    pathways:[
+      {num:'WR-CYS-1', name:'Identity, Direction & Self-Belief', track:'Claim Your Story'},
+      {num:'WR-CYS-2', name:'Resilience & Personal Regulation', track:'Claim Your Story'},
+      {num:'WR-CYS-3', name:'Personal Stability for Work', track:'Claim Your Story'},
+      {num:'WR-RTG-1', name:'Workplace Culture & Opportunity Systems', track:'Read the Game'},
+      {num:'WR-RTG-2', name:'Professional Communication & Boundaries', track:'Read the Game'},
+      {num:'WR-RTG-3', name:'Digital Reputation & Modern Work Intelligence', track:'Read the Game'},
+      {num:'WR-DM-1', name:'Planning & Reliability at Work', track:'Decision Mode'},
+      {num:'WR-DM-2', name:'Opportunity Navigation & Job Search Action', track:'Decision Mode'},
+      {num:'WR-DM-3', name:'Proof of Professional Readiness', track:'Decision Mode'},
+      {num:'WR-WTA-S1', name:'First 90 Days at Work', track:'WTA — Stay'},
+      {num:'WR-WTA-S2', name:'Managing Up, Feedback & Boundaries', track:'WTA — Stay'},
+      {num:'WR-WTA-S3', name:'Salary, Pressure & Adult Life Systems', track:'WTA — Stay'},
+      {num:'WR-WTA-G1', name:'Visible Performance & Reliability', track:'WTA — Grow'},
+      {num:'WR-WTA-G2', name:'Workplace Relationships & Credibility', track:'WTA — Grow'},
+      {num:'WR-WTA-G3', name:'Learning Fast & Building Career Capital', track:'WTA — Grow'},
+      {num:'WR-WTA-A1', name:'Reputation & Positioning', track:'WTA — Advance'},
+      {num:'WR-WTA-A2', name:'Promotion, Pivot & Next-Step Strategy', track:'WTA — Advance'},
+      {num:'WR-WTA-A3', name:'Long-Term Career & Income Decisions', track:'WTA — Advance'}
+    ]
+  },
+  {
+    code:'VB', name:'Venture Builder OS',
+    phase:'Earning', passport:'Income Activator',
+    voice:'I can turn hustle into structured business and disciplined growth.',
+    pathways:[
+      {num:'VB-FYH-1', name:'Problem Discovery & Opportunity Signals', track:'Find Your Hustle'},
+      {num:'VB-FYH-2', name:'Founder Direction & Hustle Choice', track:'Find Your Hustle'},
+      {num:'VB-FYH-3', name:'First Offer Design', track:'Find Your Hustle'},
+      {num:'VB-FHS-1', name:'Offer Design, Pricing & Value Logic', track:'From Hustle to Structure'},
+      {num:'VB-FHS-2', name:'Customer Flow, Delivery & Business Systems', track:'From Hustle to Structure'},
+      {num:'VB-FHS-3', name:'Business Numbers, Compliance & Discipline', track:'From Hustle to Structure'},
+      {num:'VB-GM-1', name:'Repeat Sales & Customer Retention', track:'Growth Mode'},
+      {num:'VB-GM-2', name:'Cashflow, Reinvestment & Growth Discipline', track:'Growth Mode'},
+      {num:'VB-GM-3', name:'Scaling Systems & Founder Control', track:'Growth Mode'}
+    ]
+  },
+  {
+    code:'EL', name:'Emerging Leaders OS',
+    phase:'Leadership', passport:'Community Leader',
+    voice:'I can lead myself, read systems, move people, and execute change.',
+    pathways:[
+      {num:'EL-LS-1', name:'Character, Integrity & Inner Leadership', track:'Lead Self'},
+      {num:'EL-LS-2', name:'Emotional Steadiness & Self-Governance', track:'Lead Self'},
+      {num:'EL-LS-3', name:'Personal Discipline & Leadership Presence', track:'Lead Self'},
+      {num:'EL-RS-1', name:'Power, Institutions & Incentives', track:'Read Systems'},
+      {num:'EL-RS-2', name:'Community, Stakeholders & Social Dynamics', track:'Read Systems'},
+      {num:'EL-RS-3', name:'Digital Responsibility & Public Judgment', track:'Read Systems'},
+      {num:'EL-LP-1', name:'Communication, Dialogue & Trust', track:'Lead People'},
+      {num:'EL-LP-2', name:'Conflict Navigation & Team Responsibility', track:'Lead People'},
+      {num:'EL-LP-3', name:'Facilitation, Follow-Through & Relational Credibility', track:'Lead People'},
+      {num:'EL-LC-1', name:'Initiative Design & Planning', track:'Lead Change'},
+      {num:'EL-LC-2', name:'Mobilization, Partnerships & Public Action', track:'Lead Change'},
+      {num:'EL-LC-3', name:'Execution, Reflection & Accountability', track:'Lead Change'}
+    ]
+  }
 ];
 
-var LEVELS={micro:4,mini:8,entry:20};
-var LEVEL_LABELS={micro:'Micro',mini:'Mini',entry:'Entry'};
+var LEVELS={micro:4,mini:8,prove:20};
+var LEVEL_LABELS={micro:'Micro',mini:'Mini',prove:'Prove'};
 var NIA_MOMENTS=[
   {key:'REFLECTION',label:'Post-session reflection',sub:'Questions NIA asks after the student completes the session',icon:'💬',color:'#AFA9EC',tc:'#26215C'},
   {key:'EXERCISE',label:'Exercise guidance',sub:'How NIA walks the student through the session task',icon:'✏️',color:'#9FE1CB',tc:'#04342C'},
@@ -473,8 +455,8 @@ var state={comp:0,path:0,level:'micro',session:1,data:{}};
 function sk(c,p,l,s){return 'c'+c+'_p'+p+'_'+l+'_s'+s;}
 function gSess(){return state.data[sk(state.comp,state.path,state.level,state.session)]||{};}
 function sSess(obj){var k=sk(state.comp,state.path,state.level,state.session);state.data[k]=Object.assign(gSess(),obj);saveState();updateSidebar();}
-function saveState(){try{localStorage.setItem('proofos_v12',JSON.stringify(state));}catch(e){}}
-function loadState(){try{var s=localStorage.getItem('proofos_v12');if(s)state=JSON.parse(s);}catch(e){}}
+function saveState(){try{localStorage.setItem('proofos_v13',JSON.stringify(state));}catch(e){}}
+function loadState(){try{var s=localStorage.getItem('proofos_v13');if(s)state=JSON.parse(s);}catch(e){}}
 
 function saveKey(){var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your Anthropic API key first.');return;}if(k.indexOf('sk-ant-')!==0){showKeyStatus('err','This does not look right — your Anthropic key should start with sk-ant-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
 function clearKey(){document.getElementById('apiKey').value='';try{localStorage.removeItem('pf_ok');}catch(e){}showKeyStatus('','');}
@@ -609,10 +591,9 @@ function buildPathSel(){
   var pathways=COMPS[state.comp].pathways;
   for(var i=0;i<pathways.length;i++){
     var o=document.createElement('option');o.value=i;
-    o.textContent=pathways[i].num+' · '+pathways[i].name;
+    o.textContent=pathways[i].num+' · '+pathways[i].name+' ['+pathways[i].track+']';
     sel.appendChild(o);
   }
-  // clamp path index if new comp has fewer pathways
   if(state.path>=pathways.length)state.path=0;
   sel.value=state.path;
 }
@@ -630,7 +611,7 @@ function setLevel(l,btn){
   state.level=l;state.session=1;
   document.getElementById('lvlMicro').className='level-pill';
   document.getElementById('lvlMini').className='level-pill';
-  document.getElementById('lvlEntry').className='level-pill';
+  document.getElementById('lvlProve').className='level-pill';
   btn.className='level-pill '+(l==='micro'?'lm':l==='mini'?'ln':'le');
   updateAll();
 }
@@ -643,11 +624,12 @@ function updateNavCrumb(){
   var lbl=LEVEL_LABELS[state.level];var total=LEVELS[state.level];
   document.getElementById('navCrumb').innerHTML=
     '<strong>'+c.code+' '+c.name+'</strong>'+
+    '<span class="crumb-sep">›</span>'+pw.track+
     '<span class="crumb-sep">›</span>'+pw.num+' · '+pw.name+
     '<span class="crumb-sep">›</span>'+lbl+' ('+total+' sessions)'+
     '<span class="crumb-sep">›</span>Session '+String(state.session).padStart(2,'0')+
     '<br><span style="font-style:italic;color:#999">'+c.voice+'</span>';
-  document.getElementById('uploadAreaSub').textContent=c.code+' · '+pw.num+' '+pw.name+' · '+lbl+' · Session '+state.session;
+  document.getElementById('uploadAreaSub').textContent=c.code+' · '+pw.track+' · '+pw.num+' · '+lbl+' · Session '+state.session;
 }
 
 function updateSidebar(){
@@ -909,11 +891,12 @@ loadState();loadSavedKey();
 try{var ek=localStorage.getItem('pf_elk');if(ek)document.getElementById('elKey').value=ek;}catch(e){}
 renderVoiceSlots();
 buildCompSel();buildPathSel();
-var lvlCls={micro:'lm',mini:'ln',entry:'le'};
+var lvlCls={micro:'lm',mini:'ln',prove:'le'};
 document.getElementById('lvlMicro').className='level-pill';
 document.getElementById('lvlMini').className='level-pill';
-document.getElementById('lvlEntry').className='level-pill';
+document.getElementById('lvlProve').className='level-pill';
 var activeLevel=state.level||'micro';
+if(!LEVELS[activeLevel])activeLevel='micro';
 document.getElementById('lvl'+activeLevel.charAt(0).toUpperCase()+activeLevel.slice(1)).className='level-pill '+(lvlCls[activeLevel]||'lm');
 speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
 updateNavCrumb();updateSidebar();loadSessionUI();
