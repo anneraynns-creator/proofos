@@ -266,6 +266,16 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a
                 </div>
                 <div style="font-size:12px;color:#666;margin-bottom:6px">Script — each word highlights as it reads</div>
                 <div class="script-reader" id="scriptReader"></div>
+                <!-- ElevenLabs Projects handoff -->
+                <div style="margin-top:1rem;background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:12px 14px">
+                  <div style="font-size:12px;font-weight:600;color:#633806;margin-bottom:4px">🎙️ Need a downloadable audio file?</div>
+                  <div style="font-size:12px;color:#633806;line-height:1.6;margin-bottom:10px">System voice is for previewing only — it cannot be downloaded. To generate a full downloadable .mp3 in your own voice, use <strong>ElevenLabs Projects</strong>. Click below to copy your script, then paste it directly into ElevenLabs Projects.</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn btn-sm" style="background:#EF9F27;color:#fff;border-color:#EF9F27;font-weight:600" onclick="copyScriptForEL()">Copy script to clipboard</button>
+                    <a href="https://elevenlabs.io/app/projects" target="_blank" class="btn btn-sm" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:600;text-decoration:none">Open ElevenLabs Projects ↗</a>
+                  </div>
+                  <div id="copyConfirm" style="font-size:11px;color:#085041;margin-top:6px;display:none">✓ Script copied — now paste it into ElevenLabs Projects</div>
+                </div>
               </div>
               <div id="elPanel" style="display:none">
                 <div class="el-box">
@@ -566,7 +576,25 @@ function getElVoiceName(){
   return voices[idx].name||'voice';
 }
 
-function buildCompSel(){
+function copyScriptForEL(){
+  var d=gSess();
+  var text=d.audioText||d.text;
+  if(!text){alert('No script loaded. Upload your script and click Save + send to Audio first.');return;}
+  navigator.clipboard.writeText(text).then(function(){
+    var confirm=document.getElementById('copyConfirm');
+    confirm.style.display='block';
+    setTimeout(function(){confirm.style.display='none';},4000);
+  }).catch(function(){
+    // fallback for browsers that block clipboard
+    var ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    var confirm=document.getElementById('copyConfirm');
+    confirm.style.display='block';
+    setTimeout(function(){confirm.style.display='none';},4000);
+  });
+}
   var sel=document.getElementById('compSel');sel.innerHTML='';
   for(var i=0;i<COMPS.length;i++){
     var o=document.createElement('option');o.value=i;
@@ -807,6 +835,24 @@ function pausePlay(){synth.pause();speaking=false;document.getElementById('playB
 function stopPlay(){synth.cancel();speaking=false;wordIdx=0;document.getElementById('playBtn').innerHTML='&#9654;';document.getElementById('progressFill').style.width='0%';document.querySelectorAll('.script-reader span').forEach(function(s){s.style.background='';});}
 function seekProgress(e){var pct=e.offsetX/e.currentTarget.offsetWidth;wordIdx=Math.floor(pct*words.length);stopPlay();startPlay();}
 
+// Split text into chunks at sentence boundaries, max ~2400 chars each
+function splitIntoChunks(text, maxLen) {
+  maxLen = maxLen || 2400;
+  var chunks = [];
+  var sentences = text.match(/[^.!?]+[.!?]+[\s]*/g) || [text];
+  var current = '';
+  for (var i = 0; i < sentences.length; i++) {
+    if ((current + sentences[i]).length > maxLen && current.length > 0) {
+      chunks.push(current.trim());
+      current = sentences[i];
+    } else {
+      current += sentences[i];
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks;
+}
+
 async function playElevenLabs(){
   var key=getElKey();var voice=getElVoice();var d=gSess();var text=d.audioText||d.text;
   if(!key){alert('Please paste your ElevenLabs API key and click Save API key.');return;}
@@ -814,16 +860,36 @@ async function playElevenLabs(){
   if(!text){alert('No script loaded. Save your script first.');return;}
   var voiceName=getElVoiceName();
   var sub=document.getElementById('elPlaySub'),out=document.getElementById('elAudioOut');
-  sub.textContent='Generating audio with '+voiceName+'...';
-  out.innerHTML='<div class="generating"><div class="spinner"></div>This may take 10-30 seconds...</div>';
+  var chunks=splitIntoChunks(text);
+  var total=chunks.length;
+  sub.textContent='Generating audio with '+voiceName+' — '+total+' part'+(total>1?'s':'')+' detected...';
+  out.innerHTML='<div class="generating"><div class="spinner"></div>Generating part 1 of '+total+'... this may take up to '+Math.ceil(total*20)+' seconds.</div>';
+  var c=COMPS[state.comp];var pw=currentPathway();
+  var baseFilename=c.code+'_'+pw.num+'_'+state.level+'_S'+String(state.session).padStart(2,'0')+'_'+voiceName.replace(/\s+/g,'_');
+  var urls=[];
   try{
-    var res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{method:'POST',headers:{'xi-api-key':key,'Content-Type':'application/json'},body:JSON.stringify({text:text.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.8}})});
-    if(!res.ok){var err=await res.json();out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+(err.detail&&err.detail.message||res.statusText)+'</span>';return;}
-    var blob=await res.blob();var url=URL.createObjectURL(blob);
-    var c=COMPS[state.comp];var pw=currentPathway();
-    var fname=c.code+'_'+pw.num+'_'+state.level+'_S'+String(state.session).padStart(2,'0')+'_'+voiceName.replace(/\s+/g,'_')+'.mp3';
-    out.innerHTML='<div style="font-size:12px;color:#085041;margin-bottom:6px">Playing: <strong>'+voiceName+'</strong></div><audio controls style="width:100%;margin-bottom:8px" src="'+url+'"></audio><a href="'+url+'" download="'+fname+'" class="btn btn-sm btn-green">Download audio</a>';
-    sub.textContent='Done — '+voiceName;
+    for(var i=0;i<chunks.length;i++){
+      out.innerHTML='<div class="generating"><div class="spinner"></div>Generating part '+(i+1)+' of '+total+'...</div>';
+      var res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
+        method:'POST',
+        headers:{'xi-api-key':key,'Content-Type':'application/json'},
+        body:JSON.stringify({text:chunks[i],model_id:'eleven_multilingual_v2',voice_settings:{stability:0.45,similarity_boost:0.75,style:0.4,use_speaker_boost:true}})
+      });
+      if(!res.ok){var err=await res.json();out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error on part '+(i+1)+': '+(err.detail&&err.detail.message||res.statusText)+'</span>';return;}
+      var blob=await res.blob();
+      urls.push({url:URL.createObjectURL(blob),label:'Part '+(i+1)+' of '+total,fname:baseFilename+(total>1?'_part'+(i+1):'')+'.mp3'});
+    }
+    // render all parts
+    var html='<div style="font-size:12px;color:#085041;margin-bottom:10px">Generated in <strong>'+total+' part'+(total>1?'s':'')+' — '+voiceName+'</strong>'+(total>1?' Download each part separately and join them in order.':'')+' </div>';
+    urls.forEach(function(u){
+      html+='<div style="background:#f8f8f6;border-radius:8px;padding:10px;margin-bottom:8px;border:0.5px solid #eee">';
+      html+='<div style="font-size:11px;font-weight:600;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">'+u.label+'</div>';
+      html+='<audio controls style="width:100%;margin-bottom:6px" src="'+u.url+'"></audio>';
+      html+='<a href="'+u.url+'" download="'+u.fname+'" class="btn btn-sm btn-green">Download '+u.label+'</a>';
+      html+='</div>';
+    });
+    out.innerHTML=html;
+    sub.textContent='All '+total+' part'+(total>1?'s':'')+' ready — '+voiceName;
     sSess({audioReady:true});updateSidebar();
   }catch(e){out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+e.message+'</span>';}
 }
