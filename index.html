@@ -1,1 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProofOS · AYTE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.app{max-width:1060px;margin:0 auto;padding:1.5rem}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.logo{font-size:20px;font-weight:700;letter-spacing:-0.3px}.logo span{color:#7F77DD}
+.badge{font-size:11px;background:#f0f0ee;border:0.5px solid #ddd;padding:4px 10px;border-radius:20px;color:#666}
+.key-bar{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:0.75rem 1rem;margin-bottom:1rem}
+.key-bar-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.key-bar label{font-size:12px;color:#666;font-weight:500;white-space:nowrap}
+.key-bar input[type=password]{flex:1;min-width:200px;font-size:13px;padding:7px 10px;border-radius:8px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a}
+.key-status{margin-top:8px;font-size:12px;padding:6px 10px;border-radius:8px;display:none}
+.key-status.ok{display:block;background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5}
+.key-status.err{display:block;background:#FCEBEB;color:#791F1F;border:0.5px solid #F09595}
+.smb{font-size:12px;padding:7px 14px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#1a1a1a;cursor:pointer;white-space:nowrap}
+.smb:hover{background:#f0f0ee}
+.nav-block{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.nav-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.nav-group{display:flex;flex-direction:column;gap:4px}
+.nav-group label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.6px}
+.nav-group select{font-size:13px;padding:8px 10px;border-radius:8px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a;width:100%}
+.level-row{border-top:0.5px solid #eee;padding-top:10px}
+.level-row label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:8px}
+.level-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.level-pill{padding:10px 8px;border-radius:8px;border:0.5px solid #ccc;cursor:pointer;background:#f8f8f6;color:#666;text-align:center;line-height:1.4}
+.pill-name{font-size:13px;font-weight:700;display:block;margin-bottom:2px}
+.pill-sub{font-size:11px;display:block}
+.level-pill.lm{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.level-pill.ln{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.level-pill.lp{background:#FAEEDA;color:#633806;border-color:#EF9F27}
+.crumb{margin-top:10px;padding-top:10px;border-top:0.5px solid #eee;font-size:12px;color:#666;line-height:1.8}
+.crumb strong{color:#1a1a1a;font-weight:700}
+.crumb-sep{color:#ccc;margin:0 5px}
+.cols{display:grid;grid-template-columns:210px 1fr;gap:1rem}
+.sidebar{display:flex;flex-direction:column;gap:0.75rem}
+.card{background:#fff;border:0.5px solid #ddd;border-radius:12px;padding:1rem}
+.card-title{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem}
+.session-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.sg-dot{aspect-ratio:1;border-radius:4px;background:#e8e8e6;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;border:1.5px solid transparent}
+.sg-dot:hover{border-color:#ccc}
+.sg-dot.sel-sess{border:2px solid #7F77DD}
+.sg-dot.haudio{background:#FAC775;color:#633806}
+.sg-dot.hnia{background:#AFA9EC;color:#26215C}
+.sg-dot.hsocial{background:#5DCAA5;color:#04342C}
+.prog-section{margin-top:0.75rem;padding-top:0.75rem;border-top:0.5px solid #eee}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:3px}
+.prog-bar{height:4px;background:#eee;border-radius:2px;margin-bottom:8px}
+.prog-fill{height:100%;border-radius:2px}
+.tabs{display:flex;gap:4px;border-bottom:0.5px solid #eee;flex-wrap:wrap}
+.tab{font-size:13px;padding:8px 12px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none}
+.tab.active{color:#1a1a1a;border-bottom-color:#7F77DD;font-weight:700}
+.tab-panel{display:none;padding-top:1rem}
+.tab-panel.active{display:block}
+.section-title{font-size:13px;font-weight:700;margin-bottom:0.75rem}
+.upload-area{background:#f8f8f6;border:0.5px solid #ccc;border-radius:12px;padding:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.upload-area-info{flex:1;min-width:140px}
+.upload-area-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.upload-area-sub{font-size:12px;color:#666}
+.upload-btn{padding:9px 20px;border-radius:8px;background:#7F77DD;color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.upload-btn:hover{background:#534AB7}
+.upload-banner{display:none;border-radius:8px;padding:10px 14px;margin-bottom:0.75rem;font-size:13px;align-items:center;gap:10px}
+.upload-banner.loading{display:flex;background:#f8f8f6;border:0.5px solid #ddd}
+.upload-banner.ok{display:flex;background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041}
+.upload-banner.err{display:flex;background:#FCEBEB;border:0.5px solid #F09595;color:#791F1F}
+.upload-banner-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:700}
+.upload-banner.ok .upload-banner-icon{background:#1D9E75;color:#fff}
+.upload-banner.err .upload-banner-icon{background:#E24B4A;color:#fff}
+.script-box{border:0.5px solid #ccc;border-radius:12px;overflow:hidden;margin-bottom:0.75rem}
+.script-box-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#f8f8f6;border-bottom:0.5px solid #eee}
+.sbh-title{font-size:12px;font-weight:700;color:#666}
+.sbh-meta{font-size:11px;color:#999}
+.script-box-header.loaded{background:#E1F5EE;border-bottom-color:#9FE1CB}
+.script-box-header.loaded .sbh-title{color:#085041}
+.script-box-header.loaded .sbh-meta{color:#1D9E75}
+.script-box textarea{width:100%;font-size:13px;padding:12px 14px;border:none;background:#fff;color:#1a1a1a;resize:vertical;line-height:1.7;font-family:inherit;min-height:220px;outline:none}
+.btn{padding:7px 14px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#1a1a1a;cursor:pointer;font-size:13px;font-family:inherit}
+.btn:hover{background:#f0f0ee}
+.btn-primary{background:#7F77DD;color:#fff;border-color:#7F77DD}.btn-primary:hover{background:#534AB7}
+.btn-green{background:#1D9E75;color:#fff;border-color:#1D9E75}.btn-green:hover{background:#0F6E56}
+.btn-sm{padding:5px 10px;font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.audio-card{border:0.5px solid #ddd;border-radius:12px;overflow:hidden;margin-bottom:1rem}
+.audio-header{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:#f8f8f6;border-bottom:0.5px solid #eee}
+.mode-btn{font-size:12px;padding:5px 14px;border-radius:20px;border:0.5px solid #ccc;cursor:pointer;background:transparent;color:#666}
+.mode-btn.active{background:#7F77DD;color:#fff;border-color:#7F77DD}
+.audio-body{padding:1rem}
+.tts-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem}
+.tts-row label{font-size:12px;color:#666}
+.sel{font-size:12px;padding:6px 8px;border-radius:8px;border:0.5px solid #ccc;background:#f8f8f6;color:#1a1a1a}
+.play-bar{display:flex;align-items:center;gap:10px;padding:0.75rem 1rem;background:#f8f8f6;border-radius:8px;margin-bottom:0.75rem}
+.play-btn{width:40px;height:40px;border-radius:50%;background:#7F77DD;border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.play-btn:hover{background:#534AB7}
+.play-info{flex:1}.play-title{font-size:13px;font-weight:700}.play-sub{font-size:11px;color:#666}
+.pbar{width:100%;height:5px;background:#e0e0e0;border-radius:3px;margin-top:8px;cursor:pointer}
+.pfill{height:100%;background:#7F77DD;border-radius:3px;width:0%}
+.script-reader{font-size:13px;line-height:2.2;background:#f8f8f6;border-radius:8px;padding:0.75rem;max-height:220px;overflow-y:auto;border:0.5px solid #eee}
+.no-script-notice{background:#f8f8f6;border:0.5px solid #ddd;border-radius:8px;padding:1.25rem;font-size:13px;color:#666;margin-bottom:0.75rem;line-height:1.7}
+.no-script-notice strong{color:#1a1a1a}
+.el-box{background:#EEEDFE;border-radius:8px;padding:0.75rem 1rem;border:0.5px solid #AFA9EC}
+.el-box-title{font-size:12px;font-weight:700;color:#3C3489;margin-bottom:6px}
+.el-box p{font-size:12px;color:#534AB7;line-height:1.6;margin-bottom:8px}
+.el-box input{width:100%;font-size:12px;padding:6px 10px;border-radius:8px;border:0.5px solid #AFA9EC;background:#fff;color:#26215C;margin-bottom:6px}
+.nia-moment{background:#f8f8f6;border-radius:12px;margin-bottom:10px;overflow:hidden;border:0.5px solid #eee}
+.nia-moment-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid #eee}
+.nia-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.nia-moment-title{font-size:12px;font-weight:700}
+.nia-moment-sub{font-size:11px;color:#999}
+.nia-moment-body{padding:12px 14px;font-size:13px;line-height:1.8;white-space:pre-wrap}
+.social-block{background:#f8f8f6;border-radius:8px;padding:0.75rem 1rem;margin-bottom:8px;border-left:3px solid #5DCAA5;border-top:0.5px solid #eee;border-right:0.5px solid #eee;border-bottom:0.5px solid #eee}
+.social-block-title{font-size:11px;font-weight:700;color:#0F6E56;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
+.social-block-text{font-size:13px;line-height:1.6;white-space:pre-wrap}
+.generating{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;padding:0.75rem 0}
+.spinner{width:14px;height:14px;border:2px solid #ddd;border-top-color:#7F77DD;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:2rem;color:#999;font-size:13px}
+.copy-btn{float:right;font-size:11px;padding:3px 8px;border-radius:8px;border:0.5px solid #ccc;background:transparent;cursor:pointer;color:#666}
+.nia-intro{background:#EEEDFE;border-radius:8px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#534AB7;line-height:1.6;border:0.5px solid #AFA9EC}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header">
+  <div class="logo">Proof<span>OS</span> <span style="font-size:13px;color:#999;font-weight:400">· AYTE</span></div>
+  <div class="badge">5 Programs · Pathways · Course Families · 3 Levels</div>
+</div>
+<div class="key-bar">
+  <div class="key-bar-row">
+    <label>Anthropic API key</label>
+    <input type="password" id="apiKey" placeholder="Paste your Anthropic key — sk-ant-..." />
+    <button class="smb" onclick="saveKey()">Save key</button>
+    <button class="smb" onclick="clearKey()" style="color:#E24B4A;border-color:#F09595">Clear</button>
+  </div>
+  <div class="key-status" id="keyStatus"></div>
+</div>
+
+<div class="nav-block">
+  <div class="nav-grid">
+    <div class="nav-group">
+      <label>Program</label>
+      <select id="progSel" onchange="onProgChange()"></select>
+    </div>
+    <div class="nav-group">
+      <label>Pathway</label>
+      <select id="pathSel" onchange="onPathChange()"></select>
+    </div>
+    <div class="nav-group">
+      <label>Course</label>
+      <select id="courseSel" onchange="onCourseChange()"></select>
+    </div>
+  </div>
+  <div class="level-row">
+    <label>Level</label>
+    <div class="level-pills">
+      <button class="level-pill lm" id="lvlMicro" onclick="setLevel('micro',this)">
+        <span class="pill-name">Micro</span>
+        <span class="pill-sub">4 sessions · 1 hour</span>
+      </button>
+      <button class="level-pill" id="lvlMini" onclick="setLevel('mini',this)">
+        <span class="pill-name">Mini</span>
+        <span class="pill-sub">8 sessions · 2 hours</span>
+      </button>
+      <button class="level-pill" id="lvlProve" onclick="setLevel('prove',this)">
+        <span class="pill-name">Prove</span>
+        <span class="pill-sub">20 sessions · 5 hours</span>
+      </button>
+    </div>
+  </div>
+  <div class="crumb" id="navCrumb"></div>
+</div>
+
+<div class="cols">
+  <div class="sidebar">
+    <div class="card">
+      <div class="card-title">Sessions — <span id="sessCountLabel">4</span></div>
+      <div class="session-grid" id="sessionGrid"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <span style="font-size:11px;color:#999;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#FAC775;display:inline-block"></span>Audio</span>
+        <span style="font-size:11px;color:#999;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#AFA9EC;display:inline-block"></span>NIA</span>
+        <span style="font-size:11px;color:#999;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#5DCAA5;display:inline-block"></span>Social</span>
+      </div>
+      <div class="prog-section">
+        <div class="prog-row"><span>Audio</span><span id="pAudio">0 / 4</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="pAudioFill" style="background:#FAC775;width:0%"></div></div>
+        <div class="prog-row"><span>NIA</span><span id="pNia">0 / 4</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="pNiaFill" style="background:#AFA9EC;width:0%"></div></div>
+        <div class="prog-row"><span>Social</span><span id="pSocial">0 / 4</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="pSocialFill" style="background:#5DCAA5;width:0%"></div></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+      <div style="background:#f8f8f6;border-radius:8px;padding:0.6rem;text-align:center"><div style="font-size:10px;color:#999;margin-bottom:3px">Audio</div><div style="font-size:18px;font-weight:700;color:#EF9F27" id="cAudio">0</div></div>
+      <div style="background:#f8f8f6;border-radius:8px;padding:0.6rem;text-align:center"><div style="font-size:10px;color:#999;margin-bottom:3px">NIA</div><div style="font-size:18px;font-weight:700;color:#7F77DD" id="cNia">0</div></div>
+      <div style="background:#f8f8f6;border-radius:8px;padding:0.6rem;text-align:center"><div style="font-size:10px;color:#999;margin-bottom:3px">Social</div><div style="font-size:18px;font-weight:700;color:#1D9E75" id="cSocial">0</div></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('session')">Session text</button>
+        <button class="tab" onclick="switchTab('audio')">Audio</button>
+        <button class="tab" onclick="switchTab('nia')">NIA coaching script</button>
+        <button class="tab" onclick="switchTab('social')">Social drafts</button>
+        <button class="tab" onclick="switchTab('export')">Export</button>
+      </div>
+
+      <div class="tab-panel active" id="panel-session">
+        <div class="upload-area">
+          <div class="upload-area-info">
+            <div class="upload-area-title">Upload session script</div>
+            <div class="upload-area-sub" id="uploadAreaSub">Select Program, Pathway and Course first</div>
+          </div>
+          <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose file</button>
+          <input type="file" id="fileInput" accept=".txt,.docx,.doc" style="display:none" onchange="onFileSelect(event)" />
+        </div>
+        <div class="upload-banner" id="uploadBanner">
+          <div class="upload-banner-icon" id="uploadBannerIcon"></div>
+          <div id="uploadBannerText"></div>
+        </div>
+        <div class="script-box">
+          <div class="script-box-header" id="scriptBoxHeader">
+            <span class="sbh-title" id="scriptBoxTitle">Session script</span>
+            <span class="sbh-meta" id="scriptBoxMeta">Empty — upload a file or paste below</span>
+          </div>
+          <textarea id="sessionText" placeholder="Your script will appear here after uploading — or paste directly." oninput="onTextInput()"></textarea>
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" onclick="saveAndSync()">Save + send to Audio</button>
+          <button class="btn" onclick="generateAll()">Generate NIA + social</button>
+          <button class="btn btn-sm" style="color:#E24B4A" onclick="clearText()">Clear</button>
+        </div>
+        <div id="cleanNotice" style="display:none;margin-top:10px;background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:10px 14px;font-size:12px;color:#633806;line-height:1.6">
+          <strong>Section headings detected.</strong> Click <strong>Clean for audio</strong> to remove them before playing — your original script stays untouched.
+          <div style="margin-top:8px"><button class="btn btn-sm" style="background:#EF9F27;color:#fff;border-color:#EF9F27" onclick="cleanAndSync()">Clean for audio</button> <span id="cleanCount" style="font-size:11px;margin-left:6px"></span></div>
+        </div>
+        <div id="genStatus" style="margin-top:10px"></div>
+      </div>
+
+      <div class="tab-panel" id="panel-audio">
+        <div class="section-title">Audio — <span id="audioLabel">select a session</span></div>
+        <div id="noScriptNotice" class="no-script-notice">
+          <strong>No script loaded yet.</strong> Go to <strong>Session text</strong>, upload or paste your script, then click <strong>Save + send to Audio</strong>.
+        </div>
+        <div id="audioControls" style="display:none">
+          <div class="audio-card">
+            <div class="audio-header">
+              <span style="font-size:13px;font-weight:700">Voice mode</span>
+              <div style="display:flex;gap:6px">
+                <button class="mode-btn active" id="modeSystem" onclick="setMode('system')">System voice</button>
+                <button class="mode-btn" id="modeEl" onclick="setMode('elevenlabs')">My voice (ElevenLabs)</button>
+              </div>
+            </div>
+            <div class="audio-body">
+              <div id="systemPanel">
+                <div class="tts-row">
+                  <label>Voice</label><select id="voiceSelect" class="sel"></select>
+                  <label>Speed</label><input type="range" id="rateSlider" min="0.6" max="1.4" step="0.1" value="0.9" oninput="document.getElementById('rateVal').textContent=parseFloat(this.value).toFixed(1)+'x'" /><span id="rateVal" style="font-size:12px;min-width:28px">0.9x</span>
+                  <label>Pitch</label><input type="range" id="pitchSlider" min="0.5" max="1.5" step="0.1" value="1.0" oninput="document.getElementById('pitchVal').textContent=parseFloat(this.value).toFixed(1)" /><span id="pitchVal" style="font-size:12px;min-width:24px">1.0</span>
+                </div>
+                <div class="play-bar">
+                  <button class="play-btn" id="playBtn" onclick="togglePlay()">&#9654;</button>
+                  <div class="play-info">
+                    <div class="play-title" id="playTitle">Ready to read</div>
+                    <div class="play-sub" id="playSub">Script loaded — click play</div>
+                    <div class="pbar" onclick="seekProgress(event)"><div class="pfill" id="progressFill"></div></div>
+                  </div>
+                  <button class="btn btn-sm" onclick="stopPlay()">Stop</button>
+                </div>
+                <div style="font-size:12px;color:#666;margin-bottom:6px">Script — each word highlights as it reads</div>
+                <div class="script-reader" id="scriptReader"></div>
+                <div style="margin-top:1rem;background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:12px 14px">
+                  <div style="font-size:12px;font-weight:700;color:#633806;margin-bottom:4px">Need a downloadable audio file?</div>
+                  <div style="font-size:12px;color:#633806;line-height:1.6;margin-bottom:10px">System voice is for previewing only. To generate a full downloadable .mp3 in your own voice, use <strong>ElevenLabs Projects</strong>. Click below to copy your script then paste it into ElevenLabs Projects.</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn btn-sm" style="background:#EF9F27;color:#fff;border-color:#EF9F27;font-weight:700" onclick="copyScriptForEL()">Copy script to clipboard</button>
+                    <a href="https://elevenlabs.io/app/projects" target="_blank" class="btn btn-sm" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:700;text-decoration:none">Open ElevenLabs Projects</a>
+                  </div>
+                  <div id="copyConfirm" style="font-size:11px;color:#085041;margin-top:6px;display:none">Script copied — paste it into ElevenLabs Projects</div>
+                </div>
+              </div>
+              <div id="elPanel" style="display:none">
+                <div class="el-box">
+                  <div class="el-box-title">ElevenLabs — API key</div>
+                  <p>Paste your ElevenLabs API key once. Add as many voices as you need below.</p>
+                  <input type="password" id="elKey" placeholder="ElevenLabs API key" />
+                  <button class="btn btn-sm btn-primary" style="margin-bottom:8px" onclick="saveElKey()">Save API key</button>
+                  <div id="elKeyStatus" style="font-size:12px;margin-bottom:8px;color:#534AB7"></div>
+                </div>
+                <div style="margin-top:0.75rem">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <span style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px">My voices</span>
+                    <button class="btn btn-sm" onclick="addVoiceSlot()">+ Add voice</button>
+                  </div>
+                  <div id="voiceSlots"></div>
+                </div>
+                <div style="margin-top:0.75rem">
+                  <div style="font-size:12px;font-weight:700;color:#666;margin-bottom:6px">Select voice to use</div>
+                  <select id="elVoiceSelect" class="sel" style="width:100%;font-size:13px;padding:8px 10px;margin-bottom:0.75rem" onchange="onVoiceSelectChange()">
+                    <option value="">— choose a voice —</option>
+                  </select>
+                  <div class="play-bar">
+                    <button class="play-btn" onclick="playElevenLabs()">&#9654;</button>
+                    <div class="play-info">
+                      <div class="play-title" id="elPlayTitle">Select a voice above</div>
+                      <div class="play-sub" id="elPlaySub">Click play to generate audio</div>
+                    </div>
+                  </div>
+                  <div id="elAudioOut"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-nia">
+        <div class="section-title">NIA coaching script — <span id="niaLabel">select a session</span></div>
+        <div class="nia-intro">These are the scripts NIA uses to coach students through this session. Copy and paste directly into your learning platform.</div>
+        <div id="niaContent"><div class="empty-state">Generate the NIA coaching script from the Session text tab first.</div></div>
+      </div>
+
+      <div class="tab-panel" id="panel-social">
+        <div class="section-title">Social media drafts — <span id="socialLabel">select a session</span></div>
+        <div id="socialContent"><div class="empty-state">Generate social drafts from the Session text tab first.</div></div>
+      </div>
+
+      <div class="tab-panel" id="panel-export">
+        <div class="section-title">Export outputs</div>
+        <p style="font-size:13px;color:#666;margin-bottom:1rem">Download all generated content for the current course level.</p>
+        <div id="exportSummary" style="font-size:13px;color:#666;margin-bottom:1rem;line-height:1.7"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="exportAll()">Download full level</button>
+          <button class="btn" onclick="exportSession()">Download this session only</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ============================================================
+// CURRICULUM DATA: Program → Pathway → Course Code · Course Family
+// ============================================================
+var CURRICULUM = [
+  {
+    prog: 'Inner Stability OS',
+    pathways: [
+      { path: 'Notice Yourself', courses: [
+        {code:'IS-NY-1', name:'Emotional Awareness, Stress Signals & Pattern Noticing'},
+        {code:'IS-NY-2', name:'Shame, Comparison & Inner Narrative'},
+        {code:'IS-NY-3', name:'Identity, Needs & Inner Honesty'}
+      ]},
+      { path: 'Steady Your System', courses: [
+        {code:'IS-SS-1', name:'Reset Tools, Grounding & Regulation'},
+        {code:'IS-SS-2', name:'Rest, Sleep & Digital Load'},
+        {code:'IS-SS-3', name:'Pressure Recovery & Healthy Coping'}
+      ]},
+      { path: 'Build Your Rhythm', courses: [
+        {code:'IS-BR-1', name:'Daily Stability & Energy Protection'},
+        {code:'IS-BR-2', name:'Boundaries, Workload & Life Balance'},
+        {code:'IS-BR-3', name:'Support Systems & Everyday Wellbeing'}
+      ]},
+      { path: 'Reach for Support', courses: [
+        {code:'IS-RS-1', name:'Asking for Help Early'},
+        {code:'IS-RS-2', name:'Recovery After Hard Seasons'},
+        {code:'IS-RS-3', name:'Support Pathways & Help-Seeking Judgment'}
+      ]}
+    ]
+  },
+  {
+    prog: 'Life Relationships OS',
+    pathways: [
+      { path: 'Belong Well', courses: [
+        {code:'LR-BW-1', name:'Identity, Belonging & Peer Influence'},
+        {code:'LR-BW-2', name:'Friendship Discernment & Social Pressure'},
+        {code:'LR-BW-3', name:'Family Dynamics & Respectful Communication'}
+      ]},
+      { path: 'Set Clear Boundaries', courses: [
+        {code:'LR-CB-1', name:'Boundaries, Consent & Self-Respect'},
+        {code:'LR-CB-2', name:'Saying No, Asking Clearly & Holding Limits'},
+        {code:'LR-CB-3', name:'Digital Boundaries & Online Relationship Safety'}
+      ]},
+      { path: 'Build Real Trust', courses: [
+        {code:'LR-BT-1', name:'Communication, Listening & Emotional Honesty'},
+        {code:'LR-BT-2', name:'Trust, Reciprocity & Healthy Connection'},
+        {code:'LR-BT-3', name:'Conflict, Repair & Accountability'}
+      ]},
+      { path: 'Repair and Choose', courses: [
+        {code:'LR-RC-1', name:'Red Flags, Green Flags & Relationship Judgment'},
+        {code:'LR-RC-2', name:'Dating, Attachment & Healthy Choices'},
+        {code:'LR-RC-3', name:'Letting Go, Ending Well & Rebuilding'}
+      ]}
+    ]
+  },
+  {
+    prog: 'Work Readiness OS',
+    pathways: [
+      { path: 'Claim Your Story', courses: [
+        {code:'WR-CYS-1', name:'Identity, Direction & Self-Belief'},
+        {code:'WR-CYS-2', name:'Resilience & Personal Regulation'},
+        {code:'WR-CYS-3', name:'Personal Stability for Work'}
+      ]},
+      { path: 'Read the Game', courses: [
+        {code:'WR-RTG-1', name:'Workplace Culture & Opportunity Systems'},
+        {code:'WR-RTG-2', name:'Professional Communication & Boundaries'},
+        {code:'WR-RTG-3', name:'Digital Reputation & Modern Work Intelligence'}
+      ]},
+      { path: 'Decision Mode', courses: [
+        {code:'WR-DM-1', name:'Planning & Reliability at Work'},
+        {code:'WR-DM-2', name:'Opportunity Navigation & Job Search Action'},
+        {code:'WR-DM-3', name:'Proof of Professional Readiness'}
+      ]},
+      { path: 'WTA — Stay', courses: [
+        {code:'WR-WTA-S1', name:'First 90 Days at Work'},
+        {code:'WR-WTA-S2', name:'Managing Up, Feedback & Boundaries'},
+        {code:'WR-WTA-S3', name:'Salary, Pressure & Adult Life Systems'}
+      ]},
+      { path: 'WTA — Grow', courses: [
+        {code:'WR-WTA-G1', name:'Visible Performance & Reliability'},
+        {code:'WR-WTA-G2', name:'Workplace Relationships & Credibility'},
+        {code:'WR-WTA-G3', name:'Learning Fast & Building Career Capital'}
+      ]},
+      { path: 'WTA — Advance', courses: [
+        {code:'WR-WTA-A1', name:'Reputation & Positioning'},
+        {code:'WR-WTA-A2', name:'Promotion, Pivot & Next-Step Strategy'},
+        {code:'WR-WTA-A3', name:'Long-Term Career & Income Decisions'}
+      ]}
+    ]
+  },
+  {
+    prog: 'Venture Builder OS',
+    pathways: [
+      { path: 'Find Your Hustle (GYB)', courses: [
+        {code:'VB-FYH-1', name:'Problem Discovery & Opportunity Signals'},
+        {code:'VB-FYH-2', name:'Founder Direction & Hustle Choice'},
+        {code:'VB-FYH-3', name:'First Offer Design'}
+      ]},
+      { path: 'From Hustle to Structure (SIYB)', courses: [
+        {code:'VB-FHS-1', name:'Offer Design, Pricing & Value Logic'},
+        {code:'VB-FHS-2', name:'Customer Flow, Delivery & Business Systems'},
+        {code:'VB-FHS-3', name:'Business Numbers, Compliance & Discipline'}
+      ]},
+      { path: 'Growth Mode (EYB)', courses: [
+        {code:'VB-GM-1', name:'Repeat Sales & Customer Retention'},
+        {code:'VB-GM-2', name:'Cashflow, Reinvestment & Growth Discipline'},
+        {code:'VB-GM-3', name:'Scaling Systems & Founder Control'}
+      ]}
+    ]
+  },
+  {
+    prog: 'Emerging Leaders OS',
+    pathways: [
+      { path: 'Lead Self', courses: [
+        {code:'EL-LS-1', name:'Character, Integrity & Inner Leadership'},
+        {code:'EL-LS-2', name:'Emotional Steadiness & Self-Governance'},
+        {code:'EL-LS-3', name:'Personal Discipline & Leadership Presence'}
+      ]},
+      { path: 'Read Systems', courses: [
+        {code:'EL-RS-1', name:'Power, Institutions & Incentives'},
+        {code:'EL-RS-2', name:'Community, Stakeholders & Social Dynamics'},
+        {code:'EL-RS-3', name:'Digital Responsibility & Public Judgment'}
+      ]},
+      { path: 'Lead People', courses: [
+        {code:'EL-LP-1', name:'Communication, Dialogue & Trust'},
+        {code:'EL-LP-2', name:'Conflict Navigation & Team Responsibility'},
+        {code:'EL-LP-3', name:'Facilitation, Follow-Through & Relational Credibility'}
+      ]},
+      { path: 'Lead Change', courses: [
+        {code:'EL-LC-1', name:'Initiative Design & Planning'},
+        {code:'EL-LC-2', name:'Mobilization, Partnerships & Public Action'},
+        {code:'EL-LC-3', name:'Execution, Reflection & Accountability'}
+      ]}
+    ]
+  }
+];
+
+var LEVELS = {micro:4, mini:8, prove:20};
+var LEVEL_LABELS = {micro:'Micro', mini:'Mini', prove:'Prove'};
+
+var NIA_MOMENTS = [
+  {key:'REFLECTION', label:'Post-session reflection', sub:'Questions NIA asks after the student completes the session', icon:'💬', color:'#AFA9EC', tc:'#26215C'},
+  {key:'EXERCISE', label:'Exercise guidance', sub:'How NIA walks the student through the session task', icon:'✏️', color:'#9FE1CB', tc:'#04342C'},
+  {key:'SPRINT', label:'7-day sprint check-in', sub:'What NIA says at Day 3 and Day 7', icon:'📅', color:'#FAC775', tc:'#412402'},
+  {key:'INCOME', label:'Income-bridge coaching', sub:'How NIA connects this session to real income opportunity', icon:'💡', color:'#85B7EB', tc:'#042C53'},
+  {key:'BUDDY', label:'Buddy support', sub:'What NIA says when a student reaches out or feels stuck', icon:'🤝', color:'#F4C0D1', tc:'#4B1528'}
+];
+
+// state: prog index, path index, course index, level, session
+var state = {prog:0, path:0, course:0, level:'micro', session:1, data:{}};
+
+function sk(p,pa,c,l,s){return p+'_'+pa+'_'+c+'_'+l+'_s'+s;}
+function gSess(){var c=currentCourse();return state.data[sk(state.prog,state.path,c?c.code:'x',state.level,state.session)]||{};}
+function sSess(obj){var c=currentCourse();var k=sk(state.prog,state.path,c?c.code:'x',state.level,state.session);state.data[k]=Object.assign(gSess(),obj);saveState();updateSidebar();}
+function saveState(){try{localStorage.setItem('proofos_v13',JSON.stringify(state));}catch(e){}}
+function loadState(){try{var s=localStorage.getItem('proofos_v13');if(s)state=JSON.parse(s);}catch(e){}}
+
+function currentProg(){return CURRICULUM[state.prog]||CURRICULUM[0];}
+function currentPathObj(){var p=currentProg();return p.pathways[state.path]||p.pathways[0];}
+function currentCourse(){var pa=currentPathObj();return pa.courses[state.course]||pa.courses[0];}
+
+// API KEYS
+function saveKey(){var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your Anthropic API key first.');return;}if(k.indexOf('sk-ant-')!==0){showKeyStatus('err','Your Anthropic key should start with sk-ant-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
+function clearKey(){document.getElementById('apiKey').value='';try{localStorage.removeItem('pf_ok');}catch(e){}showKeyStatus('','');}
+function showKeyStatus(t,m){var el=document.getElementById('keyStatus');el.className='key-status'+(t?' '+t:'');el.textContent=m;}
+function getKey(){return document.getElementById('apiKey').value.trim()||(function(){try{return localStorage.getItem('pf_ok')||'';}catch(e){return '';}})();}
+function loadSavedKey(){try{var k=localStorage.getItem('pf_ok');if(k){document.getElementById('apiKey').value=k;showKeyStatus('ok','Key loaded.');}}catch(e){}}
+function saveElKey(){var k=document.getElementById('elKey').value.trim();if(!k){document.getElementById('elKeyStatus').textContent='Please paste your ElevenLabs API key.';return;}try{localStorage.setItem('pf_elk',k);}catch(e){}document.getElementById('elKeyStatus').textContent='API key saved.';document.getElementById('elKeyStatus').style.color='#085041';}
+function getElKey(){return document.getElementById('elKey').value.trim()||(function(){try{return localStorage.getItem('pf_elk')||'';}catch(e){return '';}})();}
+
+// ELEVENLABS MULTI-VOICE
+function loadVoices_el(){try{var v=localStorage.getItem('pf_voices');return v?JSON.parse(v):[];}catch(e){return [];}}
+function saveVoices_el(v){try{localStorage.setItem('pf_voices',JSON.stringify(v));}catch(e){}}
+function renderVoiceSlots(){
+  var voices=loadVoices_el();var container=document.getElementById('voiceSlots');container.innerHTML='';
+  if(voices.length===0){container.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0">No voices added yet. Click + Add voice.</div>';}
+  voices.forEach(function(v,i){
+    var div=document.createElement('div');div.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:8px;';
+    div.innerHTML='<input type="text" value="'+v.name+'" placeholder="Voice name" style="flex:1;font-size:12px;padding:6px 8px;border-radius:6px;border:0.5px solid #ccc;background:#f8f8f6" onchange="updateVoiceName('+i+',this.value)" />'+'<input type="text" value="'+v.id+'" placeholder="Voice ID" style="flex:1;font-size:12px;padding:6px 8px;border-radius:6px;border:0.5px solid #ccc;background:#f8f8f6" onchange="updateVoiceId('+i+',this.value)" />'+'<button onclick="removeVoice('+i+')" style="padding:5px 8px;border-radius:6px;border:0.5px solid #F09595;background:transparent;color:#E24B4A;cursor:pointer;font-size:11px">Remove</button>';
+    container.appendChild(div);
+  });
+  renderVoiceDropdown();
+}
+function renderVoiceDropdown(){var voices=loadVoices_el();var sel=document.getElementById('elVoiceSelect');var cur=sel.value;sel.innerHTML='<option value="">— choose a voice —</option>';voices.forEach(function(v,i){var o=document.createElement('option');o.value=i;o.textContent=v.name||'Voice '+(i+1);sel.appendChild(o);});if(cur)sel.value=cur;}
+function addVoiceSlot(){var v=loadVoices_el();v.push({name:'',id:''});saveVoices_el(v);renderVoiceSlots();}
+function removeVoice(i){var v=loadVoices_el();v.splice(i,1);saveVoices_el(v);renderVoiceSlots();}
+function updateVoiceName(i,val){var v=loadVoices_el();if(v[i])v[i].name=val;saveVoices_el(v);renderVoiceDropdown();}
+function updateVoiceId(i,val){var v=loadVoices_el();if(v[i])v[i].id=val;saveVoices_el(v);}
+function onVoiceSelectChange(){var v=loadVoices_el();var idx=parseInt(document.getElementById('elVoiceSelect').value);if(v[idx]){document.getElementById('elPlayTitle').textContent=v[idx].name||'Selected voice';document.getElementById('elAudioOut').innerHTML='';}}
+function getElVoice(){var v=loadVoices_el();var idx=parseInt(document.getElementById('elVoiceSelect').value);return(isNaN(idx)||!v[idx])?'':v[idx].id;}
+function getElVoiceName(){var v=loadVoices_el();var idx=parseInt(document.getElementById('elVoiceSelect').value);return(isNaN(idx)||!v[idx])?'voice':v[idx].name||'voice';}
+
+// NAV BUILDERS
+function buildProgSel(){
+  var sel=document.getElementById('progSel');sel.innerHTML='';
+  CURRICULUM.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p.prog;sel.appendChild(o);});
+  if(state.prog<CURRICULUM.length)sel.value=state.prog;
+}
+function buildPathSel(){
+  var sel=document.getElementById('pathSel');sel.innerHTML='';
+  var p=currentProg();
+  p.pathways.forEach(function(pa,i){var o=document.createElement('option');o.value=i;o.textContent=pa.path;sel.appendChild(o);});
+  if(state.path<p.pathways.length)sel.value=state.path;else{state.path=0;sel.value=0;}
+}
+function buildCourseSel(){
+  var sel=document.getElementById('courseSel');sel.innerHTML='';
+  var pa=currentPathObj();
+  pa.courses.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c.code+' · '+c.name;sel.appendChild(o);});
+  if(state.course<pa.courses.length)sel.value=state.course;else{state.course=0;sel.value=0;}
+}
+function onProgChange(){state.prog=parseInt(document.getElementById('progSel').value);state.path=0;state.course=0;state.session=1;buildPathSel();buildCourseSel();updateAll();}
+function onPathChange(){state.path=parseInt(document.getElementById('pathSel').value);state.course=0;state.session=1;buildCourseSel();updateAll();}
+function onCourseChange(){state.course=parseInt(document.getElementById('courseSel').value);state.session=1;updateAll();}
+function setLevel(l,btn){state.level=l;state.session=1;document.getElementById('lvlMicro').className='level-pill';document.getElementById('lvlMini').className='level-pill';document.getElementById('lvlProve').className='level-pill';btn.className='level-pill '+(l==='micro'?'lm':l==='mini'?'ln':'lp');updateAll();}
+function updateAll(){saveState();updateNavCrumb();updateSidebar();loadSessionUI();}
+
+function updateNavCrumb(){
+  var p=currentProg();var pa=currentPathObj();var c=currentCourse();var lbl=LEVEL_LABELS[state.level];var total=LEVELS[state.level];
+  document.getElementById('navCrumb').innerHTML='<strong>'+p.prog+'</strong><span class="crumb-sep">›</span>'+pa.path+'<span class="crumb-sep">›</span>'+c.code+' · '+c.name+'<span class="crumb-sep">›</span>'+lbl+' ('+total+' sessions)<span class="crumb-sep">›</span>Session '+String(state.session).padStart(2,'0');
+  document.getElementById('uploadAreaSub').textContent=c.code+' · '+lbl+' · Session '+state.session;
+}
+
+function updateSidebar(){
+  var total=LEVELS[state.level];var grid=document.getElementById('sessionGrid');grid.innerHTML='';document.getElementById('sessCountLabel').textContent=total;
+  var audio=0,nia=0,social=0;var c=currentCourse();
+  for(var i=1;i<=total;i++){
+    var d=state.data[sk(state.prog,state.path,c?c.code:'x',state.level,i)]||{};
+    if(d.audioReady)audio++;if(d.nia)nia++;if(d.social)social++;
+    var dot=document.createElement('div');
+    var cls='sg-dot';if(i===state.session)cls+=' sel-sess';if(d.social)cls+=' hsocial';else if(d.nia)cls+=' hnia';else if(d.audioReady)cls+=' haudio';
+    dot.className=cls;dot.textContent=String(i).padStart(2,'0');dot.title='Session '+i;
+    (function(idx){dot.onclick=function(){stopPlay();state.session=idx;saveState();updateSidebar();updateNavCrumb();loadSessionUI();};})(i);
+    grid.appendChild(dot);
+  }
+  document.getElementById('cAudio').textContent=audio;document.getElementById('cNia').textContent=nia;document.getElementById('cSocial').textContent=social;
+  document.getElementById('pAudio').textContent=audio+' / '+total;document.getElementById('pNia').textContent=nia+' / '+total;document.getElementById('pSocial').textContent=social+' / '+total;
+  document.getElementById('pAudioFill').style.width=Math.round((audio/total)*100)+'%';document.getElementById('pNiaFill').style.width=Math.round((nia/total)*100)+'%';document.getElementById('pSocialFill').style.width=Math.round((social/total)*100)+'%';
+  var co=currentCourse();var lbl=LEVEL_LABELS[state.level];
+  var es=document.getElementById('exportSummary');if(es)es.innerHTML='<strong>'+co.code+' · '+co.name+'</strong><br>'+lbl+' level · '+audio+'/'+total+' audio · '+nia+'/'+total+' NIA · '+social+'/'+total+' social';
+}
+
+function loadSessionUI(){
+  var d=gSess();var c=currentCourse();var s=state.session;
+  var lbl=c.code+' · '+LEVEL_LABELS[state.level]+' · Session '+String(s).padStart(2,'0');
+  document.getElementById('audioLabel').textContent=lbl;document.getElementById('niaLabel').textContent=lbl;document.getElementById('socialLabel').textContent=lbl;
+  document.getElementById('genStatus').innerHTML='';document.getElementById('uploadBanner').className='upload-banner';document.getElementById('cleanNotice').style.display='none';
+  document.getElementById('sessionText').value=d.text||'';updateScriptBoxHeader(d.text||'');refreshAudioTab();renderNia();renderSocial();updateNavCrumb();
+}
+
+function updateScriptBoxHeader(text){
+  var h=document.getElementById('scriptBoxHeader');var t=document.getElementById('scriptBoxTitle');var m=document.getElementById('scriptBoxMeta');
+  if(text&&text.trim()){var wc=text.trim().split(/\s+/).length;h.className='script-box-header loaded';t.textContent='Script loaded';m.textContent=wc.toLocaleString()+' words · ~'+Math.ceil(wc/130)+' min read';}
+  else{h.className='script-box-header';t.textContent='Session script';m.textContent='Empty — upload a file or paste below';}
+}
+function onTextInput(){updateScriptBoxHeader(document.getElementById('sessionText').value);}
+
+// HEADING CLEAN
+var HEADING_PATTERNS=[/^[A-Z][A-Z\s\/&:,()'\-]{4,}$/,/^\d+[\)\.]\s+[A-Z][A-Z\s]{3,}$/,/^\(?\d+[:\.]\d+\s*[-–]\s*\d+[:\.]\d+\)?/,/^#+\s+/,/^\*{1,2}[A-Z][A-Z\s]{3,}\*{1,2}$/,/^\[pause\]$/i];
+var KNOWN_HEADINGS=['TITLE','OPENING HOOK','AFRICAN GROUNDING','WHY THIS MATTERS','THE IDEA IN PLAIN LANGUAGE','CASE STUDY','THE TOOL','FRAMEWORK','BUILD IT NOW','PROOF','SAVE RULES','MARKET ACTION','UNIVERSAL LAW','REFLECTION','CTA','UNIVERSAL LAW CLOSE','SOCIAL DRAFT','REEL HOOK','CAROUSEL','LINKEDIN','WHATSAPP','NIA PROMPT','SECTION','FACILITATOR','NOTE TO','NARRATOR','STAGE DIRECTION'];
+function isHeadingLine(line){var t=line.trim();if(!t)return false;var u=t.toUpperCase();for(var i=0;i<KNOWN_HEADINGS.length;i++){if(u.indexOf(KNOWN_HEADINGS[i])===0)return true;}for(var j=0;j<HEADING_PATTERNS.length;j++){if(HEADING_PATTERNS[j].test(t))return true;}if(t.length<60&&t===t.toUpperCase()&&/[A-Z]/.test(t))return true;return false;}
+function cleanForAudio(text){var lines=text.split('\n');var cleaned=[];var removed=0;for(var i=0;i<lines.length;i++){if(isHeadingLine(lines[i])){removed++;cleaned.push('');}else{cleaned.push(lines[i]);}}return{text:cleaned.join('\n').replace(/\n{3,}/g,'\n\n').trim(),removed:removed};}
+function detectHeadings(text){var lines=text.split('\n');var count=0;for(var i=0;i<lines.length;i++){if(isHeadingLine(lines[i]))count++;}return count;}
+
+function saveAndSync(){
+  var t=document.getElementById('sessionText').value.trim();if(!t){alert('Nothing to save — upload or paste your script first.');return;}
+  sSess({text:t});updateScriptBoxHeader(t);refreshAudioTab();
+  var hc=detectHeadings(t);var notice=document.getElementById('cleanNotice');
+  if(hc>0){notice.style.display='block';document.getElementById('cleanCount').textContent=hc+' heading line'+(hc>1?'s':'')+' detected';}else{notice.style.display='none';}
+  document.getElementById('genStatus').innerHTML='<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:8px 12px;font-size:12px;color:#085041">Saved and sent to Audio tab.</div>';
+  setTimeout(function(){document.getElementById('genStatus').innerHTML='';},3000);
+}
+function cleanAndSync(){
+  var t=document.getElementById('sessionText').value.trim();if(!t)return;
+  var result=cleanForAudio(t);sSess({text:t,audioText:result.text});refreshAudioTab();
+  document.getElementById('cleanNotice').style.display='none';
+  document.getElementById('genStatus').innerHTML='<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:8px 12px;font-size:12px;color:#085041">Cleaned — '+result.removed+' heading line'+(result.removed>1?'s':'')+' removed from audio. Original unchanged.</div>';
+  setTimeout(function(){document.getElementById('genStatus').innerHTML='';},4000);
+}
+function copyScriptForEL(){
+  var d=gSess();var text=d.audioText||d.text;if(!text){alert('No script loaded. Save your script first.');return;}
+  navigator.clipboard.writeText(text).then(function(){var c=document.getElementById('copyConfirm');c.style.display='block';setTimeout(function(){c.style.display='none';},4000);}).catch(function(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var c=document.getElementById('copyConfirm');c.style.display='block';setTimeout(function(){c.style.display='none';},4000);});
+}
+function clearText(){document.getElementById('fileInput').value='';document.getElementById('sessionText').value='';sSess({text:'',audioText:null});updateScriptBoxHeader('');refreshAudioTab();document.getElementById('uploadBanner').className='upload-banner';document.getElementById('cleanNotice').style.display='none';}
+function switchTab(name){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});var map={session:0,audio:1,nia:2,social:3,export:4};document.querySelectorAll('.tab')[map[name]].classList.add('active');document.getElementById('panel-'+name).classList.add('active');}
+function setMode(m){document.getElementById('modeSystem').className='mode-btn'+(m==='system'?' active':'');document.getElementById('modeEl').className='mode-btn'+(m==='elevenlabs'?' active':'');document.getElementById('systemPanel').style.display=m==='system'?'block':'none';document.getElementById('elPanel').style.display=m==='elevenlabs'?'block':'none';}
+
+function onFileSelect(e){var f=e.target.files[0];if(f)readFile(f);}
+function readFile(file){
+  var ext=file.name.split('.').pop().toLowerCase();showUploadBanner('loading','Reading '+file.name+'...');
+  if(ext==='txt'){var r=new FileReader();r.onload=function(e){populateText(e.target.result,file.name);};r.onerror=function(){showUploadBanner('err','Could not read file.');};r.readAsText(file);}
+  else if(ext==='docx'||ext==='doc'){var r2=new FileReader();r2.onload=function(e){mammoth.extractRawText({arrayBuffer:e.target.result}).then(function(res){if(res.value.trim())populateText(res.value,file.name);else showUploadBanner('err','File appears empty.');}).catch(function(err){showUploadBanner('err','Could not read Word file: '+err.message);});};r2.onerror=function(){showUploadBanner('err','Could not open file.');};r2.readAsArrayBuffer(file);}
+  else{showUploadBanner('err','Please use .txt or .docx');}
+}
+function populateText(text,filename){var clean=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();if(!clean){showUploadBanner('err','File appears empty.');return;}var wc=clean.split(/\s+/).length;document.getElementById('sessionText').value=clean;showUploadBanner('ok',filename+' loaded — '+wc.toLocaleString()+' words. Click Save + send to Audio.');updateScriptBoxHeader(clean);sSess({text:clean});refreshAudioTab();}
+function showUploadBanner(type,msg){var el=document.getElementById('uploadBanner');var icon=document.getElementById('uploadBannerIcon');document.getElementById('uploadBannerText').textContent=msg;el.className='upload-banner '+(type||'');icon.innerHTML=type==='ok'?'✓':type==='err'?'✕':'<div class="spinner" style="width:12px;height:12px;border-width:2px;margin:auto"></div>';}
+
+var words=[],wordIdx=0,synth=window.speechSynthesis,utterance=null,speaking=false;
+function loadVoicesSys(){var sel=document.getElementById('voiceSelect');var vs=synth.getVoices();if(!vs.length){setTimeout(loadVoicesSys,300);return;}var cur=sel.value;sel.innerHTML='';var pref=['Microsoft Zira - English (United States)','Microsoft Mark - English (United States)','Microsoft David - English (United States)','Samantha','Google UK English Female'];[].slice.call(vs).sort(function(a,b){var ai=pref.indexOf(a.name),bi=pref.indexOf(b.name);if(ai>-1&&bi>-1)return ai-bi;if(ai>-1)return -1;if(bi>-1)return 1;return 0;}).forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';sel.appendChild(o);});if(cur)sel.value=cur;}
+
+function refreshAudioTab(){
+  var d=gSess();var notice=document.getElementById('noScriptNotice');var controls=document.getElementById('audioControls');
+  if(!d.text||!d.text.trim()){notice.style.display='block';controls.style.display='none';return;}
+  notice.style.display='none';controls.style.display='block';
+  var playText=d.audioText||d.text;words=playText.split(/\s+/).filter(function(w){return w;});
+  var sr=document.getElementById('scriptReader');sr.innerHTML=words.map(function(w,i){return '<span id="w'+i+'">'+w+' </span>';}).join('');
+  var c=currentCourse();document.getElementById('playTitle').textContent=c.code+' · '+LEVEL_LABELS[state.level]+' · Session '+String(state.session).padStart(2,'0');
+  var cleanBadge=d.audioText?'<span style="font-size:11px;background:#E1F5EE;color:#085041;padding:2px 8px;border-radius:10px;margin-left:8px;border:0.5px solid #5DCAA5">Headings removed</span>':'';
+  document.getElementById('playSub').innerHTML=words.length+' words · ~'+Math.ceil(words.length/130)+' min'+cleanBadge;
+}
+
+function togglePlay(){if(speaking)pausePlay();else startPlay();}
+function startPlay(){var d=gSess();if(!d.text){alert('No script loaded. Go to Session text and save your script first.');return;}if(synth.paused){synth.resume();speaking=true;document.getElementById('playBtn').innerHTML='&#10074;&#10074;';return;}var playText=d.audioText||d.text;words=playText.split(/\s+/).filter(function(w){return w;});wordIdx=0;utterance=new SpeechSynthesisUtterance(playText);var voices=synth.getVoices();var v=voices.find(function(x){return x.name===document.getElementById('voiceSelect').value;});if(v)utterance.voice=v;utterance.rate=parseFloat(document.getElementById('rateSlider').value);utterance.pitch=parseFloat(document.getElementById('pitchSlider').value);utterance.onboundary=function(e){if(e.name==='word'){document.querySelectorAll('.script-reader span').forEach(function(s){s.style.background='';});var el=document.getElementById('w'+wordIdx);if(el){el.style.background='#FAC775';el.style.borderRadius='2px';el.scrollIntoView({block:'nearest'});}document.getElementById('progressFill').style.width=Math.round((wordIdx/words.length)*100)+'%';wordIdx++;}};utterance.onend=function(){speaking=false;document.getElementById('playBtn').innerHTML='&#9654;';document.getElementById('progressFill').style.width='100%';sSess({audioReady:true});updateSidebar();};utterance.onerror=function(){speaking=false;document.getElementById('playBtn').innerHTML='&#9654;';};synth.cancel();synth.speak(utterance);speaking=true;document.getElementById('playBtn').innerHTML='&#10074;&#10074;';}
+function pausePlay(){synth.pause();speaking=false;document.getElementById('playBtn').innerHTML='&#9654;';}
+function stopPlay(){synth.cancel();speaking=false;wordIdx=0;document.getElementById('playBtn').innerHTML='&#9654;';document.getElementById('progressFill').style.width='0%';document.querySelectorAll('.script-reader span').forEach(function(s){s.style.background='';});}
+function seekProgress(e){var pct=e.offsetX/e.currentTarget.offsetWidth;wordIdx=Math.floor(pct*words.length);stopPlay();startPlay();}
+
+async function playElevenLabs(){
+  var key=getElKey();var voice=getElVoice();var d=gSess();var text=d.audioText||d.text;
+  if(!key){alert('Save your ElevenLabs API key first.');return;}if(!voice){alert('Select a voice from the dropdown first.');return;}if(!text){alert('No script loaded.');return;}
+  var voiceName=getElVoiceName();var sub=document.getElementById('elPlaySub');var out=document.getElementById('elAudioOut');
+  var chunks=splitIntoChunks(text);var total=chunks.length;var c=currentCourse();
+  var baseFile=c.code+'_'+state.level+'_S'+String(state.session).padStart(2,'0')+'_'+voiceName.replace(/\s+/g,'_');
+  sub.textContent='Generating '+total+' part'+(total>1?'s':'')+' with '+voiceName+'...';
+  out.innerHTML='<div class="generating"><div class="spinner"></div>Generating part 1 of '+total+'...</div>';
+  var urls=[];
+  try{
+    for(var i=0;i<chunks.length;i++){
+      out.innerHTML='<div class="generating"><div class="spinner"></div>Generating part '+(i+1)+' of '+total+'...</div>';
+      var res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{method:'POST',headers:{'xi-api-key':key,'Content-Type':'application/json'},body:JSON.stringify({text:chunks[i],model_id:'eleven_multilingual_v2',voice_settings:{stability:0.45,similarity_boost:0.75,style:0.4,use_speaker_boost:true}})});
+      if(!res.ok){var err=await res.json();out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+(err.detail&&err.detail.message||res.statusText)+'</span>';return;}
+      var blob=await res.blob();urls.push({url:URL.createObjectURL(blob),label:'Part '+(i+1)+' of '+total,fname:baseFile+(total>1?'_part'+(i+1):'')+'.mp3'});
+    }
+    var html='<div style="font-size:12px;color:#085041;margin-bottom:10px"><strong>'+voiceName+'</strong> — '+total+' part'+(total>1?'s generated. Download each part.':' generated.')+'</div>';
+    urls.forEach(function(u){html+='<div style="background:#f8f8f6;border-radius:8px;padding:10px;margin-bottom:8px;border:0.5px solid #eee"><div style="font-size:11px;font-weight:700;color:#666;margin-bottom:6px;text-transform:uppercase">'+u.label+'</div><audio controls style="width:100%;margin-bottom:6px" src="'+u.url+'"></audio><a href="'+u.url+'" download="'+u.fname+'" class="btn btn-sm btn-green">Download '+u.label+'</a></div>';});
+    out.innerHTML=html;sub.textContent='Done — '+total+' part'+(total>1?'s':'')+' ready';sSess({audioReady:true});updateSidebar();
+  }catch(e){out.innerHTML='<span style="color:#E24B4A;font-size:13px">Error: '+e.message+'</span>';}
+}
+function splitIntoChunks(text,maxLen){maxLen=maxLen||2400;var chunks=[];var sentences=text.match(/[^.!?]+[.!?]+[\s]*/g)||[text];var cur='';for(var i=0;i<sentences.length;i++){if((cur+sentences[i]).length>maxLen&&cur.length>0){chunks.push(cur.trim());cur=sentences[i];}else{cur+=sentences[i];}}if(cur.trim())chunks.push(cur.trim());return chunks;}
+
+async function generateAll(){
+  var text=document.getElementById('sessionText').value.trim();if(!text){alert('Please upload or paste session text first.');return;}
+  var key=getKey();if(!key){alert('Please paste your Anthropic API key and click Save key.');return;}
+  if(key.indexOf('sk-ant-')!==0){alert('Your Anthropic key should start with sk-ant-');return;}
+  sSess({text:text});updateScriptBoxHeader(text);refreshAudioTab();
+  var p=currentProg();var pa=currentPathObj();var c=currentCourse();var lbl=LEVEL_LABELS[state.level];
+  var statusEl=document.getElementById('genStatus');
+  statusEl.innerHTML='<div class="generating"><div class="spinner"></div>Generating NIA coaching script and social drafts...</div>';
+  var prompt='You are building content for NIA, an AI coach on the Afrique Consult AYTE platform.\n\nProgram: '+p.prog+'\nPathway: '+pa.path+'\nCourse: '+c.code+' — '+c.name+'\nLevel: '+lbl+' ('+LEVELS[state.level]+' sessions)\nSession: '+state.session+'\n\nSESSION CONTENT:\n'+text+'\n\nNIA speaks like a trusted older sibling — warm, direct, uses African cultural references naturally, never lectures.\n\n=== REFLECTION ===\n3-4 questions NIA asks after the student completes the session. Warm opener, genuine questions tied to the content, encouraging close.\n\n=== EXERCISE ===\nNIA walks the student through the practical task step by step. Coach beside them, not a manual.\n\n=== SPRINT ===\nDay 3 nudge and Day 7 celebration. 3-4 sentences each.\n\n=== INCOME ===\nNIA connects this session to a real income opportunity. Practical, specific, African youth reality. 3-4 sentences.\n\n=== BUDDY ===\nNIA responds when a student feels stuck. Warm, non-judgmental. Acknowledge first, redirect gently. 4-5 sentences.\n\n=== SOCIAL DRAFTS ===\nREEL HOOK, CAROUSEL OUTLINE, LINKEDIN ANGLE, WHATSAPP BROADCAST.\n- Reel hook: 1-2 punchy storytelling sentences\n- Carousel outline: 5 slide titles with one-line descriptions\n- LinkedIn angle: 80-100 words\n- WhatsApp broadcast: 60-80 words\n\nOutput ONLY the labelled blocks. No preamble.';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
+    var data=await res.json();if(data.error){statusEl.innerHTML='<div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;font-size:13px;color:#791F1F">API error: '+data.error.message+'</div>';return;}
+    var raw=data.content&&data.content[0]&&data.content[0].text||'';
+    var sections={};
+    ['REFLECTION','EXERCISE','SPRINT','INCOME','BUDDY'].forEach(function(k,i,arr){var next=arr[i+1];var m=raw.match(next?new RegExp('=== '+k+' ===[\\s\\S]*?(?==== '+next+' ===)','i'):new RegExp('=== '+k+' ===[\\s\\S]*?(?==== SOCIAL|$)','i'));sections[k]=m?m[0].replace(new RegExp('=== '+k+' ===','i'),'').trim():'';});
+    var socM=raw.match(/=== SOCIAL DRAFTS ===([\s\S]*?)$/i);
+    sSess({nia:JSON.stringify(sections),social:socM?socM[1].trim():''});renderNia();renderSocial();
+    statusEl.innerHTML='<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:10px 14px;font-size:13px;color:#085041">Generated — check NIA and Social tabs.</div>';
+  }catch(e){statusEl.innerHTML='<div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;font-size:13px;color:#791F1F">Error: '+e.message+'</div>';}
+}
+
+function renderNia(){
+  var d=gSess();var el=document.getElementById('niaContent');if(!d.nia){el.innerHTML='<div class="empty-state">Generate the NIA coaching script from the Session text tab first.</div>';return;}
+  var parsed={};try{parsed=JSON.parse(d.nia);}catch(e){el.innerHTML='<div style="white-space:pre-wrap;font-size:13px;line-height:1.8">'+d.nia+'</div>';return;}
+  var html='<button class="copy-btn" onclick="copyNia()">Copy all</button>';
+  NIA_MOMENTS.forEach(function(m){var content=parsed[m.key]||'';if(!content)return;html+='<div class="nia-moment"><div class="nia-moment-header" style="background:'+m.color+'22;border-bottom-color:'+m.color+'55"><div class="nia-icon" style="background:'+m.color+'44">'+m.icon+'</div><div><div class="nia-moment-title" style="color:'+m.tc+'">'+m.label+'</div><div class="nia-moment-sub">'+m.sub+'</div></div></div><div class="nia-moment-body">'+content+'</div></div>';});
+  el.innerHTML=html;
+}
+function copyNia(){var d=gSess();if(!d.nia)return;var out='';try{var p=JSON.parse(d.nia);NIA_MOMENTS.forEach(function(m){if(p[m.key])out+='['+m.label.toUpperCase()+']\n'+p[m.key]+'\n\n';});}catch(e){out=d.nia;}navigator.clipboard.writeText(out.trim()).catch(function(){});}
+function parseBlocks(text,labels){var lines=text.split('\n');var cur='',curL='';var blocks=[];for(var i=0;i<lines.length;i++){var line=lines[i];var m=null;for(var j=0;j<labels.length;j++){if(line.toUpperCase().indexOf(labels[j])>-1){m=labels[j];break;}}if(m){if(curL)blocks.push({label:curL,text:cur.trim()});curL=m;cur=line.replace(new RegExp(m.replace(/-/g,'\\$&')+':?','i'),'').trim();}else{cur+='\n'+line;}}if(curL)blocks.push({label:curL,text:cur.trim()});return blocks;}
+function renderSocial(){
+  var d=gSess();var el=document.getElementById('socialContent');if(!d.social){el.innerHTML='<div class="empty-state">Generate social drafts from the Session text tab first.</div>';return;}
+  var blocks=parseBlocks(d.social,['REEL HOOK','CAROUSEL OUTLINE','LINKEDIN ANGLE','WHATSAPP BROADCAST']);
+  var html='<button class="copy-btn" onclick="navigator.clipboard.writeText(gSess().social||\'\')">Copy all</button>';
+  if(blocks.length){blocks.forEach(function(b){html+='<div class="social-block"><div class="social-block-title">'+b.label+'</div><div class="social-block-text">'+b.text+'</div></div>';});}
+  else{html+='<div class="social-block"><div class="social-block-text">'+d.social+'</div></div>';}
+  el.innerHTML=html;
+}
+
+function exportAll(){
+  var p=currentProg();var pa=currentPathObj();var c=currentCourse();var lbl=LEVEL_LABELS[state.level];var total=LEVELS[state.level];
+  var out='PROOFOS EXPORT — AYTE\n'+p.prog+' / '+pa.path+' / '+c.code+' — '+c.name+'\nLevel: '+lbl+'\nDate: '+new Date().toLocaleDateString()+'\n'+'='.repeat(60)+'\n\n';
+  for(var i=1;i<=total;i++){var d=state.data[sk(state.prog,state.path,c.code,state.level,i)]||{};out+='SESSION '+String(i).padStart(2,'0')+'\n'+'-'.repeat(40)+'\n';if(d.text)out+='[SESSION TEXT]\n'+d.text+'\n\n';if(d.nia){out+='[NIA COACHING SCRIPT]\n';try{var pp=JSON.parse(d.nia);NIA_MOMENTS.forEach(function(m){if(pp[m.key])out+=m.label.toUpperCase()+'\n'+pp[m.key]+'\n\n';});}catch(e){out+=d.nia+'\n\n';}}if(d.social)out+='[SOCIAL DRAFTS]\n'+d.social+'\n\n';out+='\n';}
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/plain'}));a.download='ProofOS_'+c.code+'_'+lbl+'.txt';a.click();
+}
+function exportSession(){
+  var d=gSess();var p=currentProg();var pa=currentPathObj();var c=currentCourse();var s=String(state.session).padStart(2,'0');
+  var out='PROOFOS SESSION EXPORT\n'+p.prog+' / '+pa.path+' / '+c.code+' — '+c.name+' / '+LEVEL_LABELS[state.level]+' / Session '+s+'\n'+'='.repeat(60)+'\n\n';
+  if(d.text)out+='[SESSION TEXT]\n'+d.text+'\n\n';if(d.nia){out+='[NIA COACHING SCRIPT]\n';try{var pp=JSON.parse(d.nia);NIA_MOMENTS.forEach(function(m){if(pp[m.key])out+=m.label.toUpperCase()+'\n'+pp[m.key]+'\n\n';});}catch(e){out+=d.nia+'\n\n';}}if(d.social)out+='[SOCIAL DRAFTS]\n'+d.social+'\n\n';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/plain'}));a.download='ProofOS_'+c.code+'_'+LEVEL_LABELS[state.level]+'_S'+s+'.txt';a.click();
+}
+
+// INIT
+loadState();loadSavedKey();
+try{var ek=localStorage.getItem('pf_elk');if(ek)document.getElementById('elKey').value=ek;}catch(e){}
+buildProgSel();buildPathSel();buildCourseSel();
+// restore level pills
+document.getElementById('lvlMicro').className='level-pill';
+document.getElementById('lvlMini').className='level-pill';
+document.getElementById('lvlProve').className='level-pill';
+var lvlCls={micro:'lm',mini:'ln',prove:'lp'};
+document.getElementById('lvl'+state.level.charAt(0).toUpperCase()+state.level.slice(1)).className='level-pill '+(lvlCls[state.level]||'lm');
+speechSynthesis.onvoiceschanged=loadVoicesSys;loadVoicesSys();
+renderVoiceSlots();updateNavCrumb();updateSidebar();loadSessionUI();
+</script>
+</body>
+</html>
 
