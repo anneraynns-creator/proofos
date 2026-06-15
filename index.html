@@ -525,7 +525,8 @@ function clearAllData(){
     document.getElementById('cleanNotice').style.display='none';
     alert('Audio progress cleared. Scripts, NIA scripts and social drafts are unchanged.');
   }catch(e){alert('Could not clear data: '+e.message);}
-}var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your Anthropic API key first.');return;}if(k.indexOf('sk-ant-')!==0){showKeyStatus('err','Your Anthropic key should start with sk-ant-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
+}
+function saveKey(){var k=document.getElementById('apiKey').value.trim();if(!k){showKeyStatus('err','Please paste your Anthropic API key first.');return;}if(k.indexOf('sk-ant-')!==0){showKeyStatus('err','Your Anthropic key should start with sk-ant-');return;}try{localStorage.setItem('pf_ok',k);showKeyStatus('ok','Key saved.');}catch(e){showKeyStatus('err','Storage blocked. Key works this session.');}}
 function clearKey(){document.getElementById('apiKey').value='';try{localStorage.removeItem('pf_ok');}catch(e){}showKeyStatus('','');}
 function showKeyStatus(t,m){var el=document.getElementById('keyStatus');el.className='key-status'+(t?' '+t:'');el.textContent=m;}
 function getKey(){return document.getElementById('apiKey').value.trim()||(function(){try{return localStorage.getItem('pf_ok')||'';}catch(e){return '';}})();}
